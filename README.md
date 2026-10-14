@@ -1,6 +1,6 @@
 # Airline Management System (Microservices)
 
-A scalable, multi-module microservice-based airline management platform built with **Java 17**, **Spring Boot**, **Spring Data JPA**, **Spring Cache**, and **PostgreSQL**.
+A scalable, multi-module microservice-based airline management platform built with **Java 17**, **Spring Boot**, **Spring Security**, **JJWT**, **Spring Data JPA**, **Spring Cache**, and **PostgreSQL**.
 
 ---
 
@@ -13,12 +13,14 @@ airline-system/
 ├── pom.xml                                   # Root Reactor Parent POM
 ├── microservice/
 │   ├── pom.xml                               # Microservices Parent Aggregator
-│   ├── common-lib/                           # Shared DTOs, Embeddables, Utilities
+│   ├── common-lib/                           # Shared DTOs, Embeddables, Enums & Utilities
 │   │   ├── src/main/java/com/noir/
 │   │   │   ├── embeddable/                   # Address, GeoCode
+│   │   │   ├── enums/                        # UserRole (ROLE_SYSTEM_ADMIN, ROLE_USER, ROLE_AIRLINE_OWNER)
 │   │   │   └── payload/
-│   │   │       ├── request/                  # CityRequest, AirportRequest
-│   │   │       └── response/                 # CityResponse, AirportResponse, ApiResponse
+│   │   │       ├── dto/                      # UserDTO
+│   │   │       ├── request/                  # CityRequest, AirportRequest, LoginRequest
+│   │   │       └── response/                 # CityResponse, AirportResponse, ApiResponse, AuthResponse
 │   ├── cloud/                                # Cloud Infrastructure (Config / Gateway)
 │   └── services/                             # Business Services Aggregator
 │       ├── location-service/                 # Location Service (Cities & Airports) - Port 5004
@@ -31,7 +33,13 @@ airline-system/
 │       │   │   └── service/                  # CityService, AirportService & Implementations
 │       │   └── src/main/resources/           # application.yaml (PostgreSQL: airline_location_db)
 │       └── user-service/                     # User & Auth Service - Port 5001
-│           ├── src/main/java/com/noir/       # UserServiceApplication
+│           ├── src/main/java/com/noir/
+│           │   ├── config/                   # SecurityConfig, JwtProvider, JwtConstant
+│           │   ├── controller/               # AuthController, UserController
+│           │   ├── mapper/                   # UserMapper
+│           │   ├── model/                    # User JPA Entity (mapped to "users" table)
+│           │   ├── repository/               # UserRepository
+│           │   └── service/                  # AuthService, CustomUserDetailsService & AuthServiceImpl
 │           └── src/main/resources/           # application.yaml (PostgreSQL: airline_user_db)
 └── README.md
 ```
@@ -42,6 +50,8 @@ airline-system/
 
 - **Language:** Java 17
 - **Framework:** Spring Boot 4.x
+- **Security:** Spring Security (Stateless sessions, BCrypt password hashing)
+- **Authentication:** JJWT 0.12.6 (JSON Web Token HMAC-SHA256)
 - **Persistence:** Spring Data JPA / Hibernate
 - **Database:** PostgreSQL
 - **Caching:** Spring Cache abstraction (`ConcurrentMapCacheManager`)
@@ -58,8 +68,12 @@ A shared library packaged as a JAR, providing:
 - **Embeddables:**
   - `Address` (`street`, `postalCode`)
   - `GeoCode` (`latitude`, `longitude`)
-- **Request Payloads:** `CityRequest`, `AirportRequest`
-- **Response Payloads:** `CityResponse`, `AirportResponse`, `ApiResponse`
+- **Enums:**
+  - `UserRole` (`ROLE_SYSTEM_ADMIN`, `ROLE_USER`, `ROLE_AIRLINE_OWNER`)
+- **DTOs & Payloads:**
+  - `UserDTO`, `LoginRequest`
+  - `CityRequest`, `AirportRequest`
+  - `CityResponse`, `AirportResponse`, `ApiResponse`, `AuthResponse`
 
 ### 2. Location Service (`location-service`) — Port `5004`
 Handles geographical and navigational entities:
@@ -69,11 +83,14 @@ Handles geographical and navigational entities:
 - **Database:** PostgreSQL (`airline_location_db`)
 
 ### 3. User Service (`user-service`) — Port `5001`
-Manages users, authentication, profiles, and roles across the airline system.
+Manages users, authentication, profiles, and roles across the airline system:
+- **Registration & Authentication:** Sign up new users, validate credentials, and issue signed JWTs.
+- **Spring Security:** Stateless session management with BCrypt password encoding.
+- **JWT Provider:** Issues HMAC-SHA256 signed bearer tokens carrying claims (`email`, `userId`, `authorities`).
 - **Database:** PostgreSQL (`airline_user_db`)
 
 ### 4. Cloud (`cloud`)
-Infrastructure parent module for future Eureka Service Discovery, Spring Cloud Gateway, and centralized configuration.
+Infrastructure parent module for Eureka Service Discovery, Spring Cloud Gateway, and centralized configuration.
 
 ---
 
@@ -89,14 +106,14 @@ Both services are configured to connect to PostgreSQL at `localhost:5432`:
 ### Sample YAML Configuration (`application.yaml`):
 ```yaml
 server:
-  port: 5004
+  port: 5001
 
 spring:
   application:
-    name: location-service
+    name: user-service
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/airline_location_db
+    url: jdbc:postgresql://localhost:5432/airline_user_db
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
@@ -114,9 +131,60 @@ spring:
 
 ## 📡 API Endpoints Documentation
 
-Base URL: `http://localhost:5004` (Location Service)
+---
 
-### 🌆 City Endpoints (`/api/cities`)
+### 🔐 Authentication & User Endpoints (`user-service` — Port `5001`)
+
+Base URL: `http://localhost:5001`
+
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `POST` | `/auth/signup` | Register a new user and receive a JWT token |
+| `POST` | `/auth/login` | Authenticate with email/password and receive a JWT token |
+| `GET` | `/api/users/status` | Health check endpoint returning service status |
+| `GET` | `/api/users/test` | Simple string test endpoint |
+
+#### Sample Signup Request (`POST /auth/signup`):
+```json
+{
+  "fullName": "John Doe",
+  "email": "john.doe@example.com",
+  "password": "Password123!",
+  "phone": "+919876543210",
+  "role": "ROLE_USER"
+}
+```
+
+#### Sample Login Request (`POST /auth/login`):
+```json
+{
+  "email": "john.doe@example.com",
+  "password": "Password123!"
+}
+```
+
+#### Sample Auth Response:
+```json
+{
+  "jwt": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "message": "Login Successfully!",
+  "title": "Welcome Back John Doe",
+  "user": {
+    "id": 1,
+    "email": "john.doe@example.com",
+    "fullName": "John Doe",
+    "phone": "+919876543210",
+    "role": "ROLE_USER",
+    "lastLogin": "2026-10-14T23:30:00"
+  }
+}
+```
+
+---
+
+### 🌆 City Endpoints (`location-service` — Port `5004`)
+
+Base URL: `http://localhost:5004`
 
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
@@ -143,7 +211,9 @@ Base URL: `http://localhost:5004` (Location Service)
 
 ---
 
-### 🛫 Airport Endpoints (`/api/airports`)
+### 🛫 Airport Endpoints (`location-service` — Port `5004`)
+
+Base URL: `http://localhost:5004`
 
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
