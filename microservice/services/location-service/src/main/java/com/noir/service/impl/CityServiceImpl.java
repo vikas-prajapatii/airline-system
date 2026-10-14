@@ -25,8 +25,6 @@ public class CityServiceImpl implements CityService {
         City result = cityRepository.save(city);
         return CityMapper.toResponse(result);
     }
-
-
     @Override
     public CityResponse getCityById(Long id) throws Exception {
         City city = cityRepository.findById(id).orElseThrow(
