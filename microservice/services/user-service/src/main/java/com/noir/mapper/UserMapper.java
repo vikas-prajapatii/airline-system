@@ -1,6 +1,10 @@
 package com.noir.mapper;
 import com.noir.model.User;
 import com.noir.payload.dto.UserDTO;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
 public class UserMapper {
     public static UserDTO toDTO(User user) {
         if (user == null) {
@@ -28,5 +32,10 @@ public class UserMapper {
                 .role(dto.getRole())
                 .lastLogin(dto.getLastLogin())
                 .build();
+    }
+    public static List<UserDTO> toDTOList(List<User> users) {
+        return users.stream()
+                .map(UserMapper::toDTO)
+                .collect(Collectors.toList());
     }
 }
