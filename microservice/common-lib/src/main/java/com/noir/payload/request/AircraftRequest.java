@@ -4,6 +4,7 @@ import com.noir.enums.AircraftStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -28,16 +29,16 @@ public class AircraftRequest {
     @Positive(message = "Seating capacity must be positive")
     private Integer seatingCapacity;
 
-    @Positive(message = "Economy seats must be positive")
+    @PositiveOrZero(message = "Economy seats must be positive or zero")
     private Integer economySeats;
 
-    @Positive(message = "Premium economy seats must be positive")
+    @PositiveOrZero(message = "Premium economy seats must be positive or zero")
     private Integer premiumEconomySeats;
 
-    @Positive(message = "Business seats must be positive")
+    @PositiveOrZero(message = "Business seats must be positive or zero")
     private Integer businessSeats;
 
-    @Positive(message = "First class seats must be positive")
+    @PositiveOrZero(message = "First class seats must be positive or zero")
     private Integer firstClassSeats;
 
     @Positive(message = "Range must be positive")
