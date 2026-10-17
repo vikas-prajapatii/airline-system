@@ -13,7 +13,11 @@ public class FlightInstanceEventProducer {
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
     public void sendFlightInstanceCreated(FlightInstanceCreatedEvent event) {
-        log.info("Publishing flight instance created event: {}", event);
-        kafkaTemplate.send("flight-instance-created", event);
+        try {
+            log.info("Publishing flight instance created event: {}", event);
+            kafkaTemplate.send("flight-instance-created", event);
+        } catch (Exception e) {
+            log.error("Could not publish flight instance created event to Kafka: {}", e.getMessage());
+        }
     }
 }

@@ -13,8 +13,7 @@ public class FlightScheduleMapper {
             Flight flight
     ){
         if(request==null || flight == null) return null;
-
-        return  FlightSchedule.builder()
+        return FlightSchedule.builder()
                 .flight(flight)
                 .departureAirportId(flight.getDepartureAirportId())
                 .arrivalAirportId(flight.getArrivalAirportId())

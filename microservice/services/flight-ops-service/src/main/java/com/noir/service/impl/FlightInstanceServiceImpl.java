@@ -117,14 +117,28 @@ public class FlightInstanceServiceImpl implements FlightInstanceService {
     }
 
     private FlightInstanceResponse convertToFlightInstanceResponse(FlightInstance flightInstance) {
-        // service to service communication
-        AirlineResponse airline = airlineClient.getAirlineById(flightInstance.getAirlineId());
-        AirportResponse departureAirport = locationClient
-                .getAirportById(flightInstance.getDepartureAirportId());
-        AirportResponse arrivalAirport = locationClient
-                .getAirportById(flightInstance.getArrivalAirportId());
-        AircraftResponse aircraftResponse = airlineClient.getAircraftById(
-                flightInstance.getFlight().getAircraftId());
+        // service to service communication with graceful fallbacks
+        AirlineResponse airline = null;
+        try {
+            airline = airlineClient.getAirlineById(flightInstance.getAirlineId());
+        } catch (Exception ignored) {}
+
+        AirportResponse departureAirport = null;
+        try {
+            departureAirport = locationClient.getAirportById(flightInstance.getDepartureAirportId());
+        } catch (Exception ignored) {}
+
+        AirportResponse arrivalAirport = null;
+        try {
+            arrivalAirport = locationClient.getAirportById(flightInstance.getArrivalAirportId());
+        } catch (Exception ignored) {}
+
+        AircraftResponse aircraftResponse = null;
+        try {
+            if (flightInstance.getFlight() != null && flightInstance.getFlight().getAircraftId() != null) {
+                aircraftResponse = airlineClient.getAircraftById(flightInstance.getFlight().getAircraftId());
+            }
+        } catch (Exception ignored) {}
 
         return FlightInstanceMapper.toResponse(
                 flightInstance,

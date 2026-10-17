@@ -96,11 +96,26 @@ public class FlightServiceImpl implements FlightService {
     }
 
     public FlightResponse convertToFlightResponse(Flight flight) {
-        // service to service communication
-        AircraftResponse aircraft = airlineClient.getAircraftById(flight.getAircraftId());
-        AirlineResponse airline = airlineClient.getAirlineById(flight.getAirlineId());
-        AirportResponse departureAirport = locationClient.getAirportById(flight.getDepartureAirportId());
-        AirportResponse arrivalAirport = locationClient.getAirportById(flight.getArrivalAirportId());
+        // service to service communication with graceful fallbacks if dependent services are booting
+        AircraftResponse aircraft = null;
+        try {
+            aircraft = airlineClient.getAircraftById(flight.getAircraftId());
+        } catch (Exception ignored) {}
+
+        AirlineResponse airline = null;
+        try {
+            airline = airlineClient.getAirlineById(flight.getAirlineId());
+        } catch (Exception ignored) {}
+
+        AirportResponse departureAirport = null;
+        try {
+            departureAirport = locationClient.getAirportById(flight.getDepartureAirportId());
+        } catch (Exception ignored) {}
+
+        AirportResponse arrivalAirport = null;
+        try {
+            arrivalAirport = locationClient.getAirportById(flight.getArrivalAirportId());
+        } catch (Exception ignored) {}
 
         return FlightMapper.toResponse(
                 flight,

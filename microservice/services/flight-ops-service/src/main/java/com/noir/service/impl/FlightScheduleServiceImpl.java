@@ -120,11 +120,17 @@ public class FlightScheduleServiceImpl implements FlightScheduleService {
     }
 
     private FlightScheduleResponse convertToFlightScheduleResponse(FlightSchedule flightSchedule) {
-        // fetch actual airport data from airline core service
-        AirportResponse departureAirport = locationClient
-                .getAirportById(flightSchedule.getDepartureAirportId());
-        AirportResponse arrivalAirport = locationClient
-                .getAirportById(flightSchedule.getArrivalAirportId());
+        // fetch airport data with graceful fallback
+        AirportResponse departureAirport = null;
+        try {
+            departureAirport = locationClient.getAirportById(flightSchedule.getDepartureAirportId());
+        } catch (Exception ignored) {}
+
+        AirportResponse arrivalAirport = null;
+        try {
+            arrivalAirport = locationClient.getAirportById(flightSchedule.getArrivalAirportId());
+        } catch (Exception ignored) {}
+
         return FlightScheduleMapper.toResponse(
                 flightSchedule, arrivalAirport, departureAirport
         );
