@@ -36,8 +36,13 @@ public class FlightInstanceServiceImpl implements FlightInstanceService {
     @Override
     public FlightInstanceResponse createFlightInstance(Long userId, FlightInstanceRequest request) throws Exception {
 
-        // fetch airline by owner id
-        AirlineResponse airlineResponse = airlineClient.getAirlineByOwner(userId);
+        // fetch airline by owner id or fallback to direct airlineId
+        AirlineResponse airlineResponse;
+        try {
+            airlineResponse = airlineClient.getAirlineByOwner(userId);
+        } catch (Exception e) {
+            airlineResponse = airlineClient.getAirlineById(userId);
+        }
         Flight flight = flightRepository.findById(request.getFlightId()).orElseThrow(
                 () -> new Exception("Flight Not Found!")
         );
