@@ -12,8 +12,6 @@
 
 	<name>pricing-service</name>
 	<description>pricing service manages fares, fare role, and baggage policies. It is responsible for pricing related details</description>
-
-
 	<dependencies>
 		<dependency>
 			<groupId>com.noir</groupId>
@@ -101,5 +99,4 @@
 			</plugin>
 		</plugins>
 	</build>
-
 </project>
