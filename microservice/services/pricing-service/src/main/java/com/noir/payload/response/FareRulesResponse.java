@@ -15,6 +15,7 @@ public class FareRulesResponse {
 
     private Long id;
     private String ruleName;
+    private Long fareId;
     private Long airlineId;
     private Boolean isRefundable;
     private Double changeFee;
