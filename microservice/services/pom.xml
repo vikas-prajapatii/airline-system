@@ -22,6 +22,7 @@
         <module>flight-ops-service</module>
         <module>pricing-service</module>
         <module>Seat-Service</module>
+        <module>ancillary-service</module>
     </modules>
 
 </project>
