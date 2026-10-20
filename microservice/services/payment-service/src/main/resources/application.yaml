@@ -1,0 +1,37 @@
+server:
+  port: 5009
+
+spring:
+  application:
+    name: payment-service
+
+  cloud:
+    compatibility-verifier:
+      enabled: false
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/airline_payment_db
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+booking-service:
+  url: http://localhost:5008
+
+user-service:
+  url: http://localhost:5001
+
+razorpay:
+  api:
+    key: ${RAZORPAY_API_KEY:rzp_test_placeholder}
+    secret: ${RAZORPAY_API_SECRET:placeholder_secret}
+  callback:
+    base-url: ${RAZORPAY_CALLBACK_BASE_URL:http://localhost:3000}

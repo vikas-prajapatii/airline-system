@@ -5,6 +5,10 @@ spring:
   application:
     name: ancillary-service
 
+  cloud:
+    compatibility-verifier:
+      enabled: false
+
   datasource:
     url: jdbc:postgresql://localhost:5432/airline_ancillary_db
     username: postgres

@@ -5,6 +5,10 @@ spring:
   application:
     name: seat-service
 
+  cloud:
+    compatibility-verifier:
+      enabled: false
+
   datasource:
     url: jdbc:postgresql://localhost:5432/airline_seat_db
     username: postgres
