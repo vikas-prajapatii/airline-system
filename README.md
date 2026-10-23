@@ -1,277 +1,358 @@
-# Airline Management System (Microservices)
+# ✈️ Airline Management System — Microservices
 
-A scalable, multi-module microservice-based airline management platform built with **Java 17**, **Spring Boot**, **Spring Security**, **JJWT**, **Spring Data JPA**, **Spring Cache**, and **PostgreSQL**.
+A production-grade, scalable **multi-module microservice platform** for end-to-end airline operations management, built with **Java 17**, **Spring Boot**, **Spring Security**, **Apache Kafka**, **Razorpay**, and **PostgreSQL**.
 
 ---
 
 ## 🏗 System Architecture & Modules
 
-The repository is organized as a Maven multi-module project:
-
 ```
 airline-system/
-├── pom.xml                                   # Root Reactor Parent POM
-├── microservice/
-│   ├── pom.xml                               # Microservices Parent Aggregator
-│   ├── common-lib/                           # Shared DTOs, Embeddables, Enums & Utilities
-│   │   ├── src/main/java/com/noir/
-│   │   │   ├── embeddable/                   # Address, GeoCode, Support
-│   │   │   ├── enums/                        # UserRole, AircraftStatus, AirlineStatus
-│   │   │   └── payload/
-│   │   │       ├── dto/                      # UserDTO
-│   │   │       ├── request/                  # CityRequest, AirportRequest, LoginRequest, AircraftRequest, AirlineRequest
-│   │   │       └── response/                 # CityResponse, AirportResponse, ApiResponse, AuthResponse, AircraftResponse, AirlineResponse, AirlineDropdownItem
-│   ├── cloud/                                # Cloud Infrastructure (Config / Gateway)
-│   └── services/                             # Business Services Aggregator
-│       ├── location-service/                 # Location Service (Cities & Airports) - Port 5004
-│       │   ├── src/main/java/com/noir/
-│       │   │   ├── config/                   # CacheConfig (ConcurrentMapCacheManager)
-│       │   │   ├── controller/               # CityController, AirportController
-│       │   │   ├── mapper/                   # CityMapper, AirportMapper
-│       │   │   ├── model/                    # City, Airport JPA Entities
-│       │   │   ├── repository/               # CityRepository, AirportRepository
-│       │   │   └── service/                  # CityService, AirportService & Implementations
-│       │   └── src/main/resources/           # application.yaml (PostgreSQL: airline_location_db)
-│       ├── user-service/                     # User & Auth Service - Port 5001
-│       │   ├── src/main/java/com/noir/
-│       │   │   ├── config/                   # SecurityConfig, JwtProvider, JwtConstant
-│       │   │   ├── controller/               # AuthController, UserController
-│       │   │   ├── mapper/                   # UserMapper
-│       │   │   ├── model/                    # User JPA Entity (mapped to "users" table)
-│       │   │   ├── repository/               # UserRepository
-│       │   │   └── service/                  # AuthService, UserService, CustomUserDetailsService & Implementations
-│       │   └── src/main/resources/           # application.yaml (PostgreSQL: airline_user_db)
-│       └── airline-core-service/             # Airline & Aircraft Core Service - Port 5002
-│           ├── src/main/java/com/noir/
-│           │   ├── controller/               # AirlineController, AircraftController
-│           │   ├── mapper/                   # AirlineMapper, AircraftMapper
-│           │   ├── model/                    # Airline, Aircraft JPA Entities
-│           │   ├── repository/               # AirlineRepository, AircraftRepository
-│           │   └── service/                  # AirlineService, AircraftService & Implementations
-│           └── src/main/resources/           # application.yaml (PostgreSQL: airline_db)
-└── README.md
+├── README.md
+├── .gitignore
+└── microservice/
+    ├── pom.xml                                      # Microservices Parent Aggregator
+    ├── common-lib/                                  # Shared Library (DTOs, Embeddables, Events, Enums)
+    └── services/
+        ├── user-service/           Port 5001        # Auth & User Management
+        ├── airline-core-service/   Port 5002        # Airline & Aircraft Core
+        ├── flight-ops-service/     Port 5003        # Flights, Schedules & Instances
+        ├── location-service/       Port 5004        # Cities & Airports
+        ├── pricing-service/        Port 5005        # Fares & Cabin Classes
+        ├── Seat-Service/           Port 5006        # Seat Maps & Instances
+        ├── ancillary-service/      Port 5007        # Ancillaries & Meals
+        ├── booking-service/        Port 5008        # Bookings & Passengers
+        └── payment-service/        Port 5009        # Payments via Razorpay
 ```
 
 ---
 
 ## 🚀 Tech Stack
 
-- **Language:** Java 17
-- **Framework:** Spring Boot 4.x
-- **Security:** Spring Security (Stateless sessions, BCrypt password hashing)
-- **Authentication:** JJWT 0.12.6 (JSON Web Token HMAC-SHA256)
-- **Persistence:** Spring Data JPA / Hibernate (with JPA Auditing)
-- **Database:** PostgreSQL
-- **Caching:** Spring Cache abstraction (`ConcurrentMapCacheManager`)
-- **Validation:** Jakarta Bean Validation
-- **Boilerplate Reduction:** Project Lombok
-- **Build Tool:** Apache Maven (Multi-Module Reactor)
+| Category | Technology |
+| :--- | :--- |
+| **Language** | Java 17 |
+| **Framework** | Spring Boot 3.x |
+| **Security** | Spring Security (Stateless, BCrypt) |
+| **Authentication** | JJWT 0.12.6 (HMAC-SHA256 Bearer tokens) |
+| **Persistence** | Spring Data JPA / Hibernate |
+| **Database** | PostgreSQL (one DB per service) |
+| **Messaging** | Apache Kafka (event-driven inter-service) |
+| **Inter-service HTTP** | Spring Cloud OpenFeign + RestTemplate |
+| **Payment Gateway** | Razorpay |
+| **Caching** | Spring Cache (`ConcurrentMapCacheManager`) |
+| **Validation** | Jakarta Bean Validation |
+| **Boilerplate** | Project Lombok |
+| **Build Tool** | Apache Maven (Multi-Module Reactor) |
 
 ---
 
 ## 📦 Services Overview
 
-### 1. Common Library (`common-lib`)
-A shared library packaged as a JAR, providing:
-- **Embeddables:**
-  - `Address` (`street`, `postalCode`)
-  - `GeoCode` (`latitude`, `longitude`)
-  - `Support` (`email`, `phone`, `hours`)
-- **Enums:**
-  - `UserRole` (`ROLE_SYSTEM_ADMIN`, `ROLE_USER`, `ROLE_AIRLINE_OWNER`)
-  - `AircraftStatus` (`ACTIVE`, `MAINTENANCE`, `INACTIVE`, `RETIRED`)
-  - `AirlineStatus` (`ACTIVE`, `INACTIVE`, `SUSPENDED`, `PENDING`, `BANNED`)
-- **DTOs & Payloads:**
-  - `UserDTO`, `LoginRequest`
-  - `CityRequest`, `AirportRequest`, `AircraftRequest`, `AirlineRequest`
-  - `CityResponse`, `AirportResponse`, `ApiResponse`, `AuthResponse`, `AircraftResponse`, `AirlineResponse`, `AirlineDropdownItem`
+### 1. 📚 Common Library (`common-lib`)
+A shared JAR consumed by every service. Provides:
 
-### 2. Location Service (`location-service`) — Port `5004`
-Handles geographical and navigational entities:
-- **Cities:** Stores city code, name, country details, region, and timezone offset.
-- **Airports:** Stores IATA codes (unique 3-letter code), coordinates, embedded address, timezone, and foreign relation to `City`.
-- **In-Memory Caching:** Caches individual airports, lists of all airports, and airports filtered by city (`airports`, `allAirports`, `airportsByCity`) with automatic cache eviction on mutations.
-- **Database:** PostgreSQL (`airline_location_db`)
+#### Embeddables
+`Address`, `GeoCode`, `Support`, `ContactInfo`, `BoardingBenefits`, `FlexibilityBenefits`, `InFlightBenefits`, `PremiumServiceBenefits`, `SeatBenefits`
 
-### 3. User Service (`user-service`) — Port `5001`
-Manages users, authentication, profiles, and roles across the airline system:
-- **Registration & Authentication:** Sign up new users, validate credentials, and issue signed JWTs.
-- **Spring Security:** Stateless session management with BCrypt password encoding.
-- **JWT Provider:** Issues HMAC-SHA256 signed bearer tokens carrying claims (`email`, `userId`, `authorities`).
-- **User Management:** Profile fetching by email, user ID, and list all users.
-- **Database:** PostgreSQL (`airline_user_db`)
+#### Enums
+`UserRole`, `AircraftStatus`, `AirlineStatus`, `AncillaryType`, `BookingStatus`, `CabinClassType`, `CoverageType`, `FlightStatus`, `Gender`, `PaymentGateway`, `PaymentStatus`, `SeatAvailabilityStatus`, `SeatType`, `TicketStatus`
 
-### 4. Airline Core Service (`airline-core-service`) — Port `5002`
-Manages airline operations and fleet aircraft:
-- **Airlines:** Manages airline profiles (IATA/ICAO codes, owner ID, status lifecycle, alliance, embedded support contacts, auditing).
-- **Aircraft Fleet:** Manages aircraft inventory (registration code, model, seating breakdown across economy, premium economy, business, first class, cruising speed, range, maintenance status).
-- **Admin Governance:** Allows administrators to approve, suspend, or ban airlines.
-- **Database:** PostgreSQL (`airline_db`)
+#### Kafka Events
+`BookingConfirmedEvent`, `FlightInstanceCreatedEvent`, `PassengerNotificationData`, `PaymentCompletedEvent`, `PaymentFailedEvent`
+
+#### Request DTOs
+`AircraftRequest`, `AirlineRequest`, `AirportRequest`, `AncillaryRequest`, `BaggagePolicyRequest`, `BookingRequest`, `CabinClassRequest`, `CityRequest`, `FareRequest`, `FlightCabinAncillaryRequest`, `FlightInstanceCabinRequest`, `FlightInstanceRequest`, `FlightMealRequest`, `FlightRequest`, `FlightScheduleRequest`, `FlightSearchRequest`, `InsuranceCoverageRequest`, `LoginRequest`, `MealRequest`, `PassengerRequest`, `PaymentInitiateRequest`, `PaymentVerifyRequest`, `SeatMapRequest`, `SeatRequest`
+
+#### Response DTOs
+`AircraftResponse`, `AirlineDropdownItem`, `AirlineResponse`, `AirportResponse`, `AncillaryResponse`, `ApiResponse`, `AuthResponse`, `BaggagePolicyResponse`, `BookingResponse`, `CabinClassResponse`, `CityResponse`, `FareResponse`, `FlightCabinAncillaryResponse`, `FlightInstanceResponse`, `FlightMealResponse`, `FlightResponse`, `FlightScheduleResponse`, `InsuranceCoverageResponse`, `MealResponse`, `PassengerResponse`, `PaymentInitiateResponse`, `PaymentLinkResponse`, `SeatInstanceResponse`, `SeatMapResponse`, `SeatResponse`, `TicketResponse`
+
+---
+
+### 2. 🔐 User Service (`user-service`) — Port `5001`
+Manages users, authentication, profiles, and JWT lifecycle.
+- Registration & login with BCrypt password hashing
+- Stateless Spring Security with JJWT bearer tokens (HMAC-SHA256)
+- JWT claims: `email`, `userId`, `authorities`
+- Profile lookup by email, ID, and list all users
+- **Database:** `airline_user_db`
+
+---
+
+### 3. ✈️ Airline Core Service (`airline-core-service`) — Port `5002`
+Manages airline profiles and aircraft fleet inventory.
+- Full airline lifecycle (create, update, delete, approve, suspend, ban)
+- IATA/ICAO codes, alliance, owner linking, embedded support contacts
+- Aircraft fleet: registration, model, seat breakdown (economy → first class), range, speed, maintenance
+- Admin governance endpoints for status transitions
+- **Database:** `airline_db`
+
+---
+
+### 4. 🛫 Flight Ops Service (`flight-ops-service`) — Port `5003`
+Manages flights, schedules, and flight instances.
+- Flight and route management
+- Recurring schedule and one-off flight instance creation
+- Kafka producer: publishes `FlightInstanceCreatedEvent`
+- Inter-service: fetches airline data from `airline-core-service` via `RestTemplate`
+- **Database:** `airline_flight_db`
+
+---
+
+### 5. 🌆 Location Service (`location-service`) — Port `5004`
+Manages geographic entities used across the platform.
+- Cities: name, code, country, region, timezone offset
+- Airports: IATA code (unique 3-letter), coordinates, embedded address, timezone, city FK
+- In-memory caching (`airports`, `allAirports`, `airportsByCity`) with eviction on mutations
+- **Database:** `airline_location_db`
+
+---
+
+### 6. 💰 Pricing Service (`pricing-service`) — Port `5005`
+Manages fares, cabin classes, and benefit bundles for flights.
+- Cabin class definitions with capacity and benefit embeddings (`BoardingBenefits`, `FlexibilityBenefits`, `InFlightBenefits`, `PremiumServiceBenefits`, `SeatBenefits`)
+- Fare structures with baggage policy associations
+- **Database:** `airline_pricing_db`
+
+---
+
+### 7. 💺 Seat Service (`Seat-Service`) — Port `5006`
+Manages seat maps and per-instance seat availability.
+- Seat map templates (rows, left/right layout, cabin class)
+- Seat instance creation per flight instance with availability tracking
+- Seat type: `WINDOW`, `MIDDLE`, `AISLE`
+- Status: `AVAILABLE`, `RESERVED`, `OCCUPIED`, `BLOCKED`
+- **Database:** `airline_seat_db`
+
+---
+
+### 8. 🍱 Ancillary Service (`ancillary-service`) — Port `5007`
+Manages ancillary services and in-flight meals for airlines.
+- Ancillaries by type: `BAGGAGE`, `MEAL`, `INSURANCE`, `LOUNGE`, `WIFI`, `SPORT_EQUIPMENT`, etc.
+- Insurance coverages with `CoverageType` enum
+- Meal catalog: code, type, dietary restrictions, ingredients, advance booking rules
+- Inter-service: links ancillaries to airline via `airline-core-service`
+- **Database:** `airline_ancillary_db`
+
+---
+
+### 9. 📋 Booking Service (`booking-service`) — Port `5008`
+Handles end-to-end booking flow with passenger management.
+- Booking creation with multi-passenger support
+- Seat assignment, meal selection, ancillary add-ons per passenger
+- Ticket generation per passenger
+- Booking status lifecycle: `PENDING` → `CONFIRMED` → `CANCELLED`
+- Kafka producer: publishes `BookingConfirmedEvent`
+- **Database:** `airline_booking_db`
+
+---
+
+### 10. 💳 Payment Service (`payment-service`) — Port `5009`
+Handles payment initiation and verification via Razorpay.
+- Creates Razorpay orders and generates payment links
+- Verifies payment signature callbacks (HMAC validation)
+- Kafka consumer: listens to `BookingConfirmedEvent` to trigger payment flow
+- Kafka producer: publishes `PaymentCompletedEvent` / `PaymentFailedEvent`
+- Inter-service: fetches booking data from `booking-service`, user data from `user-service`
+- **Database:** `airline_payment_db`
+
+---
+
+## 🔄 Event-Driven Communication (Kafka)
+
+```
+booking-service  ──[BookingConfirmedEvent]──►  payment-service
+payment-service  ──[PaymentCompletedEvent]──►  (booking-service / notifications)
+payment-service  ──[PaymentFailedEvent]─────►  (booking-service / notifications)
+flight-ops-service ─[FlightInstanceCreatedEvent]► (seat-service / ancillary-service)
+```
 
 ---
 
 ## 🗄 Database Configuration
 
-All services connect to PostgreSQL on `localhost:5432`:
+All services connect to **PostgreSQL** on `localhost:5432`:
 
-| Service | Database Name | Port | DDL Mode |
-| :--- | :--- | :--- | :--- |
-| `location-service` | `airline_location_db` | `5004` | `update` |
-| `user-service` | `airline_user_db` | `5001` | `update` |
-| `airline-core-service` | `airline_db` | `5002` | `update` |
-
----
-
-## 📡 API Endpoints Documentation
-
----
-
-### 🔐 Authentication & User Endpoints (`user-service` — Port `5001`)
-
-Base URL: `http://localhost:5001`
-
-| Method | Endpoint | Description | Headers |
-| :--- | :--- | :--- | :--- |
-| `POST` | `/auth/signup` | Register a new user | None |
-| `POST` | `/auth/login` | Authenticate and obtain JWT | None |
-| `GET` | `/api/users/profile` | Get current user profile | `X-User-Email: <email>` |
-| `GET` | `/api/users/{userId}` | Get user by ID | None |
-| `GET` | `/api/users` | List all users | None |
+| Service | Database | Port |
+| :--- | :--- | :--- |
+| `user-service` | `airline_user_db` | `5001` |
+| `airline-core-service` | `airline_db` | `5002` |
+| `flight-ops-service` | `airline_flight_db` | `5003` |
+| `location-service` | `airline_location_db` | `5004` |
+| `pricing-service` | `airline_pricing_db` | `5005` |
+| `Seat-Service` | `airline_seat_db` | `5006` |
+| `ancillary-service` | `airline_ancillary_db` | `5007` |
+| `booking-service` | `airline_booking_db` | `5008` |
+| `payment-service` | `airline_payment_db` | `5009` |
 
 ---
 
-### ✈️ Airline Endpoints (`airline-core-service` — Port `5002`)
+## 📡 API Endpoints
 
-Base URL: `http://localhost:5002`
-
-| Method | Endpoint | Description | Headers |
-| :--- | :--- | :--- | :--- |
-| `POST` | `/api/airlines` | Create an airline | `X-User-Id: <ownerId>` |
-| `GET` | `/api/airlines/admin` | Get airline owned by authenticated user | `X-User-Id: <ownerId>` |
-| `GET` | `/api/airlines/{id}` | Get airline by ID | None |
-| `GET` | `/api/airlines` | Get paginated list of airlines | `page`, `size`, `sort` |
-| `GET` | `/api/airlines/dropdown` | Get active airlines for dropdown selectors | None |
-| `PUT` | `/api/airlines` | Update airline profile | `X-User-Id: <ownerId>` |
-| `DELETE` | `/api/airlines/{id}` | Delete an airline | `X-User-Id: <ownerId>` |
-| `POST` | `/api/airlines/{id}/approve` | Approve airline (sets status `ACTIVE`) | None |
-| `POST` | `/api/airlines/{id}/suspend` | Suspend airline (sets status `INACTIVE`) | None |
-| `POST` | `/api/airlines/{id}/ban` | Ban airline (sets status `BANNED`) | None |
-
-#### Sample Create Airline Request (`POST /api/airlines`):
-```json
-{
-  "iataCode": "AI",
-  "icaoCode": "AIC",
-  "name": "Air India",
-  "alias": "Air India Ltd",
-  "logoUrl": "https://example.com/logo.png",
-  "website": "https://www.airindia.in",
-  "alliance": "Star Alliance",
-  "headquartersCityId": 1,
-  "supportEmail": "support@airindia.in",
-  "supportPhone": "+9118001801407",
-  "supportHours": "24/7"
-}
-```
-
----
-
-### 🛩 Aircraft Endpoints (`airline-core-service` — Port `5002`)
-
-Base URL: `http://localhost:5002`
-
-| Method | Endpoint | Description | Headers |
-| :--- | :--- | :--- | :--- |
-| `POST` | `/api/aircrafts` | Create an aircraft for airline | `X-User-Id: <ownerId>` |
-| `GET` | `/api/aircrafts/{id}` | Get aircraft details by ID | None |
-| `GET` | `/api/aircrafts` | List all aircraft owned by authenticated owner | `X-User-Id: <ownerId>` |
-| `PUT` | `/api/aircrafts/{id}` | Update aircraft details | `X-User-Id: <ownerId>` |
-| `DELETE` | `/api/aircrafts/{id}` | Delete aircraft | `X-User-Id: <ownerId>` |
-
-#### Sample Create Aircraft Request (`POST /api/aircrafts`):
-```json
-{
-  "code": "VT-EXA",
-  "model": "Airbus A320neo",
-  "manufacturer": "Airbus",
-  "seatingCapacity": 180,
-  "economySeats": 150,
-  "premiumEconomySeats": 18,
-  "businessSeats": 12,
-  "firstClassSeats": 0,
-  "rangeKm": 6500,
-  "cruisingSpeedKmh": 828,
-  "maxAltitudeFt": 39000,
-  "yearOfManufacture": 2022,
-  "registrationDate": "2022-05-15",
-  "nextMaintenanceDate": "2026-11-01",
-  "status": "ACTIVE",
-  "isAvailable": true,
-  "currentAirportId": 1
-}
-```
-
----
-
-### 🌆 City & Airport Endpoints (`location-service` — Port `5004`)
-
-Base URL: `http://localhost:5004`
+### 🔐 Auth & User (`user-service` — Port `5001`)
 
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
-| `POST` | `/api/cities` | Create a new city |
-| `GET` | `/api/cities/{id}` | Get city by ID |
-| `GET` | `/api/cities` | Get all cities (paginated) |
-| `PUT` | `/api/cities/{id}` | Update existing city |
+| `POST` | `/auth/signup` | Register a new user |
+| `POST` | `/auth/login` | Authenticate and obtain JWT |
+| `GET` | `/api/users/profile` | Get profile (`X-User-Email` header) |
+| `GET` | `/api/users/{userId}` | Get user by ID |
+| `GET` | `/api/users` | List all users |
+
+---
+
+### ✈️ Airline (`airline-core-service` — Port `5002`)
+
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `POST` | `/api/airlines` | Create airline (`X-User-Id` header) |
+| `GET` | `/api/airlines/admin` | Get own airline (`X-User-Id` header) |
+| `GET` | `/api/airlines/{id}` | Get airline by ID |
+| `GET` | `/api/airlines` | List airlines (paginated) |
+| `GET` | `/api/airlines/dropdown` | Active airlines for dropdowns |
+| `PUT` | `/api/airlines` | Update airline profile |
+| `DELETE` | `/api/airlines/{id}` | Delete airline |
+| `POST` | `/api/airlines/{id}/approve` | Approve airline |
+| `POST` | `/api/airlines/{id}/suspend` | Suspend airline |
+| `POST` | `/api/airlines/{id}/ban` | Ban airline |
+
+---
+
+### 🛩 Aircraft (`airline-core-service` — Port `5002`)
+
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `POST` | `/api/aircrafts` | Add aircraft (`X-User-Id` header) |
+| `GET` | `/api/aircrafts/{id}` | Get aircraft by ID |
+| `GET` | `/api/aircrafts` | List all aircraft (owner) |
+| `PUT` | `/api/aircrafts/{id}` | Update aircraft |
+| `DELETE` | `/api/aircrafts/{id}` | Delete aircraft |
+
+---
+
+### 🌆 Location (`location-service` — Port `5004`)
+
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `POST` | `/api/cities` | Create city |
+| `GET` | `/api/cities/{id}` | Get city |
+| `GET` | `/api/cities` | All cities (paginated) |
+| `PUT` | `/api/cities/{id}` | Update city |
 | `DELETE` | `/api/cities/{id}` | Delete city |
 | `POST` | `/api/airports` | Create airport |
-| `GET` | `/api/airports/{id}` | Get airport by ID *(Cached)* |
-| `GET` | `/api/airports` | Get all airports *(Cached)* |
-| `PUT` | `/api/airports/{id}` | Update airport *(Evicts cache)* |
-| `DELETE` | `/api/airports/{id}` | Delete airport *(Evicts cache)* |
-| `GET` | `/api/airports/city/{cityId}` | Get airports in a given city *(Cached)* |
-| `GET` | `/api/airports/iata/{iataCode}` | Get airport by 3-letter IATA code |
+| `GET` | `/api/airports/{id}` | Get airport *(cached)* |
+| `GET` | `/api/airports` | All airports *(cached)* |
+| `PUT` | `/api/airports/{id}` | Update airport *(cache evicted)* |
+| `DELETE` | `/api/airports/{id}` | Delete airport *(cache evicted)* |
+| `GET` | `/api/airports/city/{cityId}` | Airports by city *(cached)* |
+| `GET` | `/api/airports/iata/{iataCode}` | Airport by IATA code |
+
+---
+
+### 💺 Seat (`Seat-Service` — Port `5006`)
+
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `POST` | `/api/seat-maps` | Create seat map template |
+| `GET` | `/api/seat-maps/{id}` | Get seat map |
+| `GET` | `/api/seat-maps` | List seat maps |
+| `PUT` | `/api/seat-maps/{id}` | Update seat map |
+| `DELETE` | `/api/seat-maps/{id}` | Delete seat map |
+| `POST` | `/api/seats` | Create seat |
+| `GET` | `/api/seats/{id}` | Get seat |
+| `GET` | `/api/seats/seat-map/{seatMapId}` | Seats by seat map |
+
+---
+
+### 💳 Payment (`payment-service` — Port `5009`)
+
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `POST` | `/api/payments/initiate` | Initiate Razorpay order |
+| `POST` | `/api/payments/verify` | Verify payment signature |
+| `GET` | `/api/payments/{bookingId}` | Get payment by booking |
 
 ---
 
 ## 🛠 Setup & Run Instructions
 
-### 1. Prerequisites
-- **Java 17** or higher
+### Prerequisites
+- **Java 17+**
 - **Maven 3.8+**
-- **PostgreSQL** running on port `5432`
+- **PostgreSQL** on `localhost:5432`
+- **Apache Kafka** on `localhost:9092`
+- **Razorpay** API key & secret (for payment-service)
 
-### 2. Create Databases
-In PostgreSQL, create the required databases:
+### 1. Create Databases
 ```sql
-CREATE DATABASE airline_location_db;
 CREATE DATABASE airline_user_db;
 CREATE DATABASE airline_db;
+CREATE DATABASE airline_flight_db;
+CREATE DATABASE airline_location_db;
+CREATE DATABASE airline_pricing_db;
+CREATE DATABASE airline_seat_db;
+CREATE DATABASE airline_ancillary_db;
+CREATE DATABASE airline_booking_db;
+CREATE DATABASE airline_payment_db;
 ```
 
-### 3. Build Multi-Module Project
-From the repository root or `microservice/` directory:
+### 2. Build the Shared Library First
 ```bash
+cd microservice/common-lib
 mvn clean install
 ```
 
-### 4. Run Services
-Run services independently:
-
-**Location Service:**
+### 3. Build All Services
 ```bash
-cd microservice/services/location-service
-mvn spring-boot:run
+cd microservice
+mvn clean install
 ```
 
-**User Service:**
+### 4. Set Environment Variables (payment-service)
 ```bash
-cd microservice/services/user-service
-mvn spring-boot:run
+export RAZORPAY_API_KEY=your_razorpay_key
+export RAZORPAY_API_SECRET=your_razorpay_secret
+export KAFKA_BOOTSTRAP_SERVERS=localhost:9092
 ```
 
-**Airline Core Service:**
+### 5. Run Services (recommended startup order)
 ```bash
-cd microservice/services/airline-core-service
-mvn spring-boot:run
+# 1. Location & User (no dependencies)
+cd microservice/services/location-service && mvn spring-boot:run
+cd microservice/services/user-service && mvn spring-boot:run
+
+# 2. Core services
+cd microservice/services/airline-core-service && mvn spring-boot:run
+cd microservice/services/pricing-service && mvn spring-boot:run
+
+# 3. Operational services
+cd microservice/services/flight-ops-service && mvn spring-boot:run
+cd microservice/services/Seat-Service && mvn spring-boot:run
+cd microservice/services/ancillary-service && mvn spring-boot:run
+
+# 4. Transactional services
+cd microservice/services/booking-service && mvn spring-boot:run
+cd microservice/services/payment-service && mvn spring-boot:run
 ```
+
+---
+
+## 🔒 Security Notes
+
+- All inter-service requests forward a `X-User-Id` header for owner validation.
+- JWT bearer tokens must be included in the `Authorization: Bearer <token>` header for protected endpoints.
+- Razorpay secrets should **never** be hardcoded — always use environment variables.
+
+---
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/your-feature`
+3. Commit your changes: `git commit -m 'feat: add your feature'`
+4. Push to the branch: `git push origin feature/your-feature`
+5. Open a Pull Request
+
+---
+
+> Built with ❤️ using Java 17 & Spring Boot Microservices
