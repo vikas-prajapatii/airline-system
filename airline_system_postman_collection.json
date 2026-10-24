@@ -1,0 +1,426 @@
+{
+  "info": {
+    "name": "Airline Management System - Full API Collection",
+    "description": "Complete Postman collection covering all 9 microservices in the Airline Management System.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "user_service_url", "value": "http://localhost:5001" },
+    { "key": "airline_service_url", "value": "http://localhost:5002" },
+    { "key": "flight_service_url", "value": "http://localhost:5003" },
+    { "key": "location_service_url", "value": "http://localhost:5004" },
+    { "key": "pricing_service_url", "value": "http://localhost:5005" },
+    { "key": "seat_service_url", "value": "http://localhost:5006" },
+    { "key": "ancillary_service_url", "value": "http://localhost:5007" },
+    { "key": "booking_service_url", "value": "http://localhost:5008" },
+    { "key": "payment_service_url", "value": "http://localhost:5009" },
+    { "key": "jwt_token", "value": "" },
+    { "key": "user_id", "value": "1" }
+  ],
+  "item": [
+    {
+      "name": "1. User Service (5001)",
+      "item": [
+        {
+          "name": "Signup User",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"John Doe\",\n  \"email\": \"johndoe@example.com\",\n  \"password\": \"Password@123\",\n  \"role\": \"ROLE_USER\"\n}"
+            },
+            "url": { "raw": "{{user_service_url}}/auth/signup", "host": ["{{user_service_url}}"], "path": ["auth", "signup"] }
+          }
+        },
+        {
+          "name": "Login User",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"johndoe@example.com\",\n  \"password\": \"Password@123\"\n}"
+            },
+            "url": { "raw": "{{user_service_url}}/auth/login", "host": ["{{user_service_url}}"], "path": ["auth", "login"] }
+          }
+        },
+        {
+          "name": "Get User Profile",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "X-User-Email", "value": "johndoe@example.com" }],
+            "url": { "raw": "{{user_service_url}}/api/users/profile", "host": ["{{user_service_url}}"], "path": ["api", "users", "profile"] }
+          }
+        },
+        {
+          "name": "Get User By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{user_service_url}}/api/users/1", "host": ["{{user_service_url}}"], "path": ["api", "users", "1"] }
+          }
+        },
+        {
+          "name": "List All Users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{user_service_url}}/api/users", "host": ["{{user_service_url}}"], "path": ["api", "users"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Airline Core Service (5002)",
+      "item": [
+        {
+          "name": "Create Airline",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-User-Id", "value": "{{user_id}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"iataCode\": \"AI\",\n  \"icaoCode\": \"AIC\",\n  \"name\": \"Air India\",\n  \"alias\": \"Air India Ltd\",\n  \"logoUrl\": \"https://example.com/logo.png\",\n  \"website\": \"https://www.airindia.in\",\n  \"alliance\": \"Star Alliance\",\n  \"headquartersCityId\": 1,\n  \"supportEmail\": \"support@airindia.in\",\n  \"supportPhone\": \"+9118001801407\",\n  \"supportHours\": \"24/7\"\n}"
+            },
+            "url": { "raw": "{{airline_service_url}}/api/airlines", "host": ["{{airline_service_url}}"], "path": ["api", "airlines"] }
+          }
+        },
+        {
+          "name": "Get Airline By Owner (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "X-User-Id", "value": "{{user_id}}" }],
+            "url": { "raw": "{{airline_service_url}}/api/airlines/admin", "host": ["{{airline_service_url}}"], "path": ["api", "airlines", "admin"] }
+          }
+        },
+        {
+          "name": "Get Airline By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{airline_service_url}}/api/airlines/1", "host": ["{{airline_service_url}}"], "path": ["api", "airlines", "1"] }
+          }
+        },
+        {
+          "name": "Get Airlines Dropdown",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{airline_service_url}}/api/airlines/dropdown", "host": ["{{airline_service_url}}"], "path": ["api", "airlines", "dropdown"] }
+          }
+        },
+        {
+          "name": "Create Aircraft",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-User-Id", "value": "{{user_id}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"VT-EXA\",\n  \"model\": \"Airbus A320neo\",\n  \"manufacturer\": \"Airbus\",\n  \"seatingCapacity\": 180,\n  \"economySeats\": 150,\n  \"premiumEconomySeats\": 18,\n  \"businessSeats\": 12,\n  \"firstClassSeats\": 0,\n  \"rangeKm\": 6500,\n  \"cruisingSpeedKmh\": 828,\n  \"maxAltitudeFt\": 39000,\n  \"yearOfManufacture\": 2023,\n  \"registrationDate\": \"2023-01-15\",\n  \"nextMaintenanceDate\": \"2026-12-01\",\n  \"status\": \"ACTIVE\",\n  \"isAvailable\": true,\n  \"currentAirportId\": 1\n}"
+            },
+            "url": { "raw": "{{airline_service_url}}/api/aircrafts", "host": ["{{airline_service_url}}"], "path": ["api", "aircrafts"] }
+          }
+        },
+        {
+          "name": "List Aircrafts by Owner",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "X-User-Id", "value": "{{user_id}}" }],
+            "url": { "raw": "{{airline_service_url}}/api/aircrafts", "host": ["{{airline_service_url}}"], "path": ["api", "aircrafts"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Location Service (5004)",
+      "item": [
+        {
+          "name": "Create City",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"DEL\",\n  \"name\": \"New Delhi\",\n  \"countryName\": \"India\",\n  \"countryCode\": \"IN\",\n  \"region\": \"Asia\",\n  \"timezoneOffset\": \"+05:30\"\n}"
+            },
+            "url": { "raw": "{{location_service_url}}/api/cities", "host": ["{{location_service_url}}"], "path": ["api", "cities"] }
+          }
+        },
+        {
+          "name": "Get All Cities",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{location_service_url}}/api/cities", "host": ["{{location_service_url}}"], "path": ["api", "cities"] }
+          }
+        },
+        {
+          "name": "Create Airport",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"iataCode\": \"DEL\",\n  \"icaoCode\": \"VIDP\",\n  \"name\": \"Indira Gandhi International Airport\",\n  \"cityId\": 1,\n  \"timezone\": \"Asia/Kolkata\",\n  \"geoCode\": {\n    \"latitude\": 28.5562,\n    \"longitude\": 77.1000\n  },\n  \"address\": {\n    \"street\": \"New Udaan Bhawan, Terminal 3\",\n    \"postalCode\": \"110037\"\n  }\n}"
+            },
+            "url": { "raw": "{{location_service_url}}/api/airports", "host": ["{{location_service_url}}"], "path": ["api", "airports"] }
+          }
+        },
+        {
+          "name": "Get All Airports",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{location_service_url}}/api/airports", "host": ["{{location_service_url}}"], "path": ["api", "airports"] }
+          }
+        },
+        {
+          "name": "Get Airport by IATA",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{location_service_url}}/api/airports/iata/DEL", "host": ["{{location_service_url}}"], "path": ["api", "airports", "iata", "DEL"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Flight Ops Service (5003)",
+      "item": [
+        {
+          "name": "Create Flight",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-User-Id", "value": "{{user_id}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"flightNumber\": \"AI101\",\n  \"departureAirportId\": 1,\n  \"arrivalAirportId\": 2,\n  \"aircraftId\": 1,\n  \"airlineId\": 1,\n  \"distanceKm\": 1150\n}"
+            },
+            "url": { "raw": "{{flight_service_url}}/api/flights", "host": ["{{flight_service_url}}"], "path": ["api", "flights"] }
+          }
+        },
+        {
+          "name": "Get Flight by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{flight_service_url}}/api/flights/1", "host": ["{{flight_service_url}}"], "path": ["api", "flights", "1"] }
+          }
+        },
+        {
+          "name": "Create Flight Schedule",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"flightId\": 1,\n  \"departureTime\": \"06:00:00\",\n  \"arrivalTime\": \"08:15:00\",\n  \"daysOfWeek\": \"1,2,3,4,5,6,7\",\n  \"validFrom\": \"2026-11-01\",\n  \"validTo\": \"2027-03-31\"\n}"
+            },
+            "url": { "raw": "{{flight_service_url}}/api/flight-schedules", "host": ["{{flight_service_url}}"], "path": ["api", "flight-schedules"] }
+          }
+        },
+        {
+          "name": "Create Flight Instance",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-User-Id", "value": "{{user_id}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"flightId\": 1,\n  \"departureDate\": \"2026-12-01\",\n  \"departureTime\": \"2026-12-01T06:00:00\",\n  \"arrivalTime\": \"2026-12-01T08:15:00\",\n  \"aircraftId\": 1,\n  \"status\": \"SCHEDULED\"\n}"
+            },
+            "url": { "raw": "{{flight_service_url}}/api/flight-instances", "host": ["{{flight_service_url}}"], "path": ["api", "flight-instances"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Pricing Service (5005)",
+      "item": [
+        {
+          "name": "Create Fare",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"flightId\": 1,\n  \"cabinClassId\": 1,\n  \"name\": \"Economy Standard\",\n  \"baseFare\": 4500.0,\n  \"taxesAndFees\": 850.0,\n  \"airlineFees\": 200.0,\n  \"isRefundable\": true,\n  \"isChangeable\": true\n}"
+            },
+            "url": { "raw": "{{pricing_service_url}}/api/fares", "host": ["{{pricing_service_url}}"], "path": ["api", "fares"] }
+          }
+        },
+        {
+          "name": "Create Baggage Policy",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Standard Economy Baggage\",\n  \"fareId\": 1,\n  \"airlineId\": 1,\n  \"cabinBaggagePieces\": 1,\n  \"cabinBaggageMaxWeight\": 7.0,\n  \"checkInBaggagePieces\": 1,\n  \"checkInBaggageMaxWeight\": 15.0\n}"
+            },
+            "url": { "raw": "{{pricing_service_url}}/api/baggage-policies", "host": ["{{pricing_service_url}}"], "path": ["api", "baggage-policies"] }
+          }
+        },
+        {
+          "name": "Get Fares by Flight & Cabin",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{pricing_service_url}}/api/fares/flight/1/cabin-class/1", "host": ["{{pricing_service_url}}"], "path": ["api", "fares", "flight", "1", "cabin-class", "1"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Seat Service (5006)",
+      "item": [
+        {
+          "name": "Create Cabin Class",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Economy\",\n  \"code\": \"Y\",\n  \"aircraftId\": 1,\n  \"displayOrder\": 1,\n  \"isActive\": true,\n  \"isBookable\": true,\n  \"typicalSeatPitch\": 31,\n  \"typicalSeatWidth\": 18,\n  \"seatType\": \"STANDARD\"\n}"
+            },
+            "url": { "raw": "{{seat_service_url}}/api/cabin-classes", "host": ["{{seat_service_url}}"], "path": ["api", "cabin-classes"] }
+          }
+        },
+        {
+          "name": "Create Seat Map",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"A320 Main Economy Map\",\n  \"totalRows\": 25,\n  \"leftSeatsPerRow\": 3,\n  \"rightSeatsPerRow\": 3,\n  \"cabinClassId\": 1\n}"
+            },
+            "url": { "raw": "{{seat_service_url}}/api/seat-maps", "host": ["{{seat_service_url}}"], "path": ["api", "seat-maps"] }
+          }
+        },
+        {
+          "name": "Get All Physical Seats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{seat_service_url}}/api/seats", "host": ["{{seat_service_url}}"], "path": ["api", "seats"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Ancillary Service (5007)",
+      "item": [
+        {
+          "name": "Create Ancillary Product",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Priority Boarding\",\n  \"type\": \"BAGGAGE\",\n  \"airlineId\": 1,\n  \"displayOrder\": 1\n}"
+            },
+            "url": { "raw": "{{ancillary_service_url}}/api/ancillaries", "host": ["{{ancillary_service_url}}"], "path": ["api", "ancillaries"] }
+          }
+        },
+        {
+          "name": "Create In-Flight Meal",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"VGML\",\n  \"name\": \"Vegetarian Indian Thali\",\n  \"mealType\": \"Vegetarian\",\n  \"dietaryRestriction\": \"Vegetarian\",\n  \"ingredients\": \"Paneer tikka, roti, dal makhani, basmati rice, salad, gulab jamun\",\n  \"requiresAdvanceBooking\": true,\n  \"advanceBookingHours\": 24,\n  \"displayOrder\": 1\n}"
+            },
+            "url": { "raw": "{{ancillary_service_url}}/api/meals", "host": ["{{ancillary_service_url}}"], "path": ["api", "meals"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "8. Booking Service (5008)",
+      "item": [
+        {
+          "name": "Create Flight Booking",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-User-Id", "value": "{{user_id}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"flightInstanceId\": 1,\n  \"fareId\": 1,\n  \"contactInfo\": {\n    \"email\": \"passenger@example.com\",\n    \"phone\": \"+919876543210\"\n  },\n  \"passengers\": [\n    {\n      \"firstName\": \"John\",\n      \"lastName\": \"Doe\",\n      \"email\": \"passenger@example.com\",\n      \"phone\": \"+919876543210\",\n      \"dateOfBirth\": \"1992-08-20\",\n      \"gender\": \"MALE\",\n      \"nationality\": \"Indian\",\n      \"seatInstanceId\": 1\n    }\n  ],\n  \"ancillaryIds\": [],\n  \"mealIds\": []\n}"
+            },
+            "url": { "raw": "{{booking_service_url}}/api/bookings", "host": ["{{booking_service_url}}"], "path": ["api", "bookings"] }
+          }
+        },
+        {
+          "name": "Get Booking by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{booking_service_url}}/api/bookings/1", "host": ["{{booking_service_url}}"], "path": ["api", "bookings", "1"] }
+          }
+        },
+        {
+          "name": "Get User Booking History",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "X-User-Id", "value": "{{user_id}}" }],
+            "url": { "raw": "{{booking_service_url}}/api/bookings/user/history", "host": ["{{booking_service_url}}"], "path": ["api", "bookings", "user", "history"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "9. Payment Service (5009)",
+      "item": [
+        {
+          "name": "Initiate Razorpay Payment",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bookingId\": 1,\n  \"amount\": 5550.0\n}"
+            },
+            "url": { "raw": "{{payment_service_url}}/api/payments/initiate", "host": ["{{payment_service_url}}"], "path": ["api", "payments", "initiate"] }
+          }
+        },
+        {
+          "name": "Verify Razorpay Payment Signature",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"razorpayPaymentId\": \"pay_test12345678\",\n  \"razorpayOrderId\": \"order_test87654321\",\n  \"razorpaySignature\": \"signature_hash_placeholder\"\n}"
+            },
+            "url": { "raw": "{{payment_service_url}}/api/payments/verify", "host": ["{{payment_service_url}}"], "path": ["api", "payments", "verify"] }
+          }
+        },
+        {
+          "name": "List All Payment Logs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{payment_service_url}}/api/payments", "host": ["{{payment_service_url}}"], "path": ["api", "payments"] }
+          }
+        }
+      ]
+    }
+  ]
+}
