@@ -25,3 +25,5 @@ out/
 ### Logs & Temp ###
 *.log
 *.tmp
+
+node_modules/
