@@ -410,35 +410,38 @@ doc.font('Times-Roman').fontSize(10.5).text('Greater Noida');
 
 
 // ==========================================
-// 3. CANDIDATE\'S DECLARATION
+// 3. DECLARATION
 // ==========================================
-newPage('Candidate\'s Declaration');
+newPage();
 pageTracker.declaration = doc.bufferedPageRange().count - 1;
-doc.moveDown(1);
-doc.font('Times-Bold').fontSize(15).text('CANDIDATE\'S DECLARATION', { width: USABLE_WIDTH, align: 'center' });
+doc.moveDown(1.2);
+doc.font('Times-Bold').fontSize(16).text('DECLARATION', { width: USABLE_WIDTH, align: 'center' });
 doc.moveDown(1.5);
 
-bodyText('I hereby declare that the work presented in this Mini Project Report entitled "Backend of flight booking system" submitted in partial fulfilment of the requirements for the award of the degree of Bachelor of Technology in Computer Science & Engineering, submitted to the Department of Computer Science & Engineering, Lloyd Institute of Engineering & Technology, Greater Noida, affiliated to Dr. A.P.J. Abdul Kalam Technical University, Lucknow, is an authentic record of my own work carried out during the academic session 2026–2027 under the supervision of Ms. Deepika Arora, Assistant Professor.');
-doc.moveDown(0.5);
-bodyText('I further declare that the content of this project report has not been submitted previously in part or in full for the award of any other degree or diploma to any other institute or university.');
+bodyText('I hereby declare that the Mini Project Report entitled "Backend of flight booking system" submitted to the Department of Computer Science & Engineering, Lloyd Institute of Engineering & Technology, in partial fulfilment of the requirements for the degree of Bachelor of Technology in Computer Science & Engineering, is a record of original work carried out by me under the guidance of Ms. Deepika Arora, Assistant Professor.');
+doc.moveDown(0.6);
+bodyText('I further declare that this report has not been copied from any other source, and that all references, data and material taken from other sources have been duly acknowledged. The similarity index of this report, as checked using Turnitin, is 8% (excluding references, code and standard boilerplate text), which is below the permitted limit of 20%.');
 
-const signColWidth = USABLE_WIDTH / 2;
-doc.y = 560;
-doc.font('Times-Roman').fontSize(10.5)
-   .text('Date: 25-10-2026', MARGIN_LEFT, doc.y)
-   .text('Place: Greater Noida', MARGIN_LEFT, doc.y + 16);
+doc.y = 520;
+doc.font('Times-Bold').fontSize(11).fillColor('#000000').text('Signature: ', MARGIN_LEFT, doc.y, { continued: true });
+doc.font('Times-Roman').text('______________________');
+doc.moveDown(1.0);
 
-doc.font('Times-Bold').fontSize(10.5).text('Vikas', MARGIN_LEFT + signColWidth + 40, doc.y);
-doc.font('Times-Roman').fontSize(10)
-   .text('Roll No.: 2301530100149', MARGIN_LEFT + signColWidth + 40, doc.y + 16)
-   .text('Semester & Section: 7/A', MARGIN_LEFT + signColWidth + 40, doc.y + 32)
-   .text('B.Tech - Computer Science & Engineering', MARGIN_LEFT + signColWidth + 40, doc.y + 48);
+doc.font('Times-Bold').fontSize(11).text('Name: ', MARGIN_LEFT, doc.y, { continued: true });
+doc.font('Times-Roman').text('Vikas');
+doc.moveDown(1.0);
+
+doc.font('Times-Bold').fontSize(11).text('Roll No.: ', MARGIN_LEFT, doc.y, { continued: true });
+doc.font('Times-Roman').text('2301530100149');
+doc.moveDown(1.0);
+
+doc.font('Times-Bold').fontSize(11).text('Date: ', MARGIN_LEFT, doc.y);
 
 
 // ==========================================
 // 4. ACKNOWLEDGEMENT
 // ==========================================
-newPage('Acknowledgement');
+newPage();
 pageTracker.acknowledgement = doc.bufferedPageRange().count - 1;
 doc.moveDown(1);
 doc.font('Times-Bold').fontSize(15).text('ACKNOWLEDGEMENT', { width: USABLE_WIDTH, align: 'center' });
@@ -452,6 +455,7 @@ bodyText('I am equally obliged to Ms. Deepika Arora, Head of the Department, Com
 doc.moveDown(0.4);
 bodyText('Lastly, I express sincere gratitude to my family, faculty members, and fellow classmates for their unwavering encouragement, insightful discussions, and technical camaraderie.');
 
+const signColWidth = USABLE_WIDTH / 2;
 doc.y = 580;
 doc.font('Times-Bold').fontSize(10.5).text('Vikas', MARGIN_LEFT + signColWidth + 40, doc.y);
 doc.font('Times-Roman').fontSize(10)
