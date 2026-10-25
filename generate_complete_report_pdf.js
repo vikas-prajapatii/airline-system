@@ -1772,11 +1772,15 @@ for (let i = 0; i < totalPages; i++) {
   }
   const pageStr = getDisplayPage(i);
   
+  const origBottom = doc.page.margins.bottom;
+  doc.page.margins.bottom = 0;
   doc.font('Times-Roman').fontSize(10).fillColor('#000000')
      .text(pageStr, 0, PAGE_HEIGHT - 45, {
        width: PAGE_WIDTH,
-       align: 'center'
+       align: 'center',
+       lineBreak: false
      });
+  doc.page.margins.bottom = origBottom;
 }
 
 doc.end();
