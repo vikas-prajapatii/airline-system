@@ -1585,17 +1585,9 @@ function getDisplayPage(pageIdx) {
 
 // 1. Fill Table of Contents on pageTracker.toc
 doc.switchToPage(pageTracker.toc);
-doc.y = 80;
+doc.y = 105;
 
 const tocEntries = [
-  ['Certificate', pageTracker.certificate],
-  ['Declaration', pageTracker.declaration],
-  ['Acknowledgement', pageTracker.acknowledgement],
-  ['Abstract', pageTracker.abstract],
-  ['Table of Contents', pageTracker.toc],
-  ['List of Figures', pageTracker.listOfFigures],
-  ['List of Tables', pageTracker.listOfTables],
-  ['List of Abbreviations', pageTracker.abbreviations],
   ['CHAPTER 1: INTRODUCTION', pageTracker.chapter1],
   ['    1.1 Background', pageTracker.chapter1],
   ['    1.2 Problem Statement', pageTracker.chapter1],
@@ -1637,9 +1629,9 @@ const tocEntries = [
 ];
 
 tocEntries.forEach(([label, pgIdx]) => {
-  const isMajor = label.startsWith('CHAPTER') || ['Certificate', 'Declaration', 'Acknowledgement', 'Abstract', 'Table of Contents', 'List of Figures', 'List of Tables', 'List of Abbreviations', 'REFERENCES', 'APPENDIX'].includes(label);
+  const isMajor = label.startsWith('CHAPTER') || ['REFERENCES', 'APPENDIX'].includes(label);
   const pgStr = getDisplayPage(pgIdx !== undefined ? pgIdx : 0);
-  doc.font(isMajor ? 'Times-Bold' : 'Times-Roman').fontSize(isMajor ? 7.8 : 7.2).fillColor('#000000');
+  doc.font(isMajor ? 'Times-Bold' : 'Times-Roman').fontSize(isMajor ? 8.6 : 8.0).fillColor('#000000');
   
   const textWidth = doc.widthOfString(label);
   const numWidth = doc.widthOfString(pgStr);
@@ -1649,7 +1641,7 @@ tocEntries.forEach(([label, pgIdx]) => {
 
   doc.text(label, MARGIN_LEFT, doc.y, { continued: true });
   doc.text(' ' + dots + ' ' + pgStr, { align: 'right', width: USABLE_WIDTH - (doc.x - MARGIN_LEFT) });
-  doc.moveDown(0.12);
+  doc.moveDown(0.20);
 });
 
 // 2. Fill List of Figures on pageTracker.listOfFigures
