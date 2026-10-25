@@ -35,7 +35,8 @@ const pageTracker = {
   declaration: 0,
   acknowledgement: 0,
   abstract: 0,
-  toc: 0,
+  toc1: 0,
+  toc2: 0,
   listOfFigures: 0,
   listOfTables: 0,
   abbreviations: 0,
@@ -127,6 +128,16 @@ function majorHeading(title) {
 function sectionHeading(numAndTitle) {
   checkPageSpace(60);
   doc.moveDown(0.6);
+  // Auto-record page for TOC
+  const match = numAndTitle.match(/^(\d+\.\d+)/);
+  if (match) {
+    pageTracker['sec_' + match[1]] = doc.bufferedPageRange().count - 1;
+  }
+  if (numAndTitle.startsWith('Appendix A')) {
+    pageTracker['sec_app_a'] = doc.bufferedPageRange().count - 1;
+  } else if (numAndTitle.startsWith('Appendix B')) {
+    pageTracker['sec_app_b'] = doc.bufferedPageRange().count - 1;
+  }
   doc.font('Times-Bold').fontSize(13).fillColor('#000000')
      .text(numAndTitle, MARGIN_LEFT, doc.y, { width: USABLE_WIDTH, align: 'left', lineGap: 2 });
   doc.moveDown(0.4);
@@ -135,6 +146,11 @@ function sectionHeading(numAndTitle) {
 function subSectionHeading(numAndTitle) {
   checkPageSpace(45);
   doc.moveDown(0.4);
+  // Auto-record page for TOC
+  const match = numAndTitle.match(/^(\d+\.\d+\.\d+)/);
+  if (match) {
+    pageTracker['sec_' + match[1]] = doc.bufferedPageRange().count - 1;
+  }
   doc.font('Times-Bold').fontSize(11.5).fillColor('#1e293b')
      .text(numAndTitle, MARGIN_LEFT, doc.y, { width: USABLE_WIDTH, align: 'left', lineGap: 2 });
   doc.moveDown(0.3);
@@ -458,13 +474,15 @@ doc.font('Times-Roman').fontSize(10.5).text('Microservices, Spring Boot, Apache 
 
 
 // ==========================================
-// 6. TABLE OF CONTENTS
+// 6. TABLE OF CONTENTS (2 Pages per Template Style)
 // ==========================================
-newPage('Table of Contents');
-pageTracker.toc = doc.bufferedPageRange().count - 1;
-doc.moveDown(1);
-doc.font('Times-Bold').fontSize(15).text('TABLE OF CONTENTS', { width: USABLE_WIDTH, align: 'center' });
-doc.moveDown(1.5);
+newPage(); // TOC Page 1 without running header per academic layout
+pageTracker.toc1 = doc.bufferedPageRange().count - 1;
+doc.moveDown(0.6);
+doc.font('Times-Bold').fontSize(14).text('TABLE OF CONTENTS', { width: USABLE_WIDTH, align: 'center' });
+
+newPage(); // TOC Page 2 continuation
+pageTracker.toc2 = doc.bufferedPageRange().count - 1;
 
 
 // ==========================================
@@ -1576,73 +1594,119 @@ drawCodeBlock('Listing B.1: Postman Environment Variable Config', [
 console.log('Populating dynamic Table of Contents, Lists, and Page Numbers...');
 
 function getDisplayPage(pageIdx) {
-  const roman = ['i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii', 'viii', 'ix', 'x'];
+  const roman = ['i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii', 'viii', 'ix', 'x', 'xi', 'xii'];
   if (pageIdx < pageTracker.firstChapterPage) {
     return roman[pageIdx - 1] || String(pageIdx);
   }
   return String(pageIdx - pageTracker.firstChapterPage + 1);
 }
 
-// 1. Fill Table of Contents on pageTracker.toc
-doc.switchToPage(pageTracker.toc);
-doc.y = 105;
+function getPageNum(key, fallbackKey) {
+  let p = pageTracker[key];
+  if (p === undefined && fallbackKey) {
+    p = pageTracker[fallbackKey];
+  }
+  return getDisplayPage(p !== undefined ? p : pageTracker.firstChapterPage);
+}
 
-const tocEntries = [
-  ['CHAPTER 1: INTRODUCTION', pageTracker.chapter1],
-  ['    1.1 Background', pageTracker.chapter1],
-  ['    1.2 Problem Statement', pageTracker.chapter1],
-  ['    1.3 Objectives', pageTracker.chapter1],
-  ['    1.4 Scope of the Project', pageTracker.chapter1],
-  ['    1.5 Organisation of the Report', pageTracker.chapter1],
-  ['CHAPTER 2: LITERATURE REVIEW / EXISTING SYSTEM', pageTracker.chapter2],
-  ['    2.1 Review of Related Work', pageTracker.chapter2],
-  ['    2.2 Existing System', pageTracker.chapter2],
-  ['    2.3 Gaps Identified', pageTracker.chapter2],
-  ['    2.4 Proposed System', pageTracker.chapter2],
-  ['CHAPTER 3: SYSTEM ANALYSIS AND DESIGN', pageTracker.chapter3],
-  ['    3.1 Requirement Analysis', pageTracker.chapter3],
-  ['    3.2 Feasibility Study', pageTracker.chapter3],
-  ['    3.3 System Architecture', pageTracker.fig3_1],
-  ['    3.4 Design Diagrams', pageTracker.fig3_2],
-  ['    3.5 Technology Stack', pageTracker.chapter3],
-  ['CHAPTER 4: IMPLEMENTATION', pageTracker.chapter4],
-  ['    4.1 Module Description', pageTracker.chapter4],
-  ['    4.2 Key Algorithms', pageTracker.chapter4],
-  ['    4.3 Code Snippets', pageTracker.chapter4],
-  ['    4.4 Screenshots & System Flow', pageTracker.fig4_1],
-  ['CHAPTER 5: TESTING', pageTracker.chapter5],
-  ['    5.1 Testing Strategy', pageTracker.chapter5],
-  ['    5.2 Test Cases and Test Results', pageTracker.tab5_1],
-  ['    5.3 Sample Input / Output Payloads', pageTracker.chapter5],
-  ['CHAPTER 6: RESULTS AND DISCUSSION', pageTracker.chapter6],
-  ['    6.1 Output API Responses', pageTracker.chapter6],
-  ['    6.2 Performance & Scalability Analysis', pageTracker.tab6_1],
-  ['    6.3 Discussion & Architectural Trade-offs', pageTracker.chapter6],
-  ['CHAPTER 7: CONCLUSION AND FUTURE SCOPE', pageTracker.chapter7],
-  ['    7.1 Conclusion', pageTracker.chapter7],
-  ['    7.2 Limitations', pageTracker.chapter7],
-  ['    7.3 Future Scope', pageTracker.chapter7],
-  ['REFERENCES', pageTracker.references],
-  ['APPENDIX', pageTracker.appendix],
-  ['    Appendix A: Source Code Highlights', pageTracker.appendix],
-  ['    Appendix B: Postman Automated Test Suite Spec', pageTracker.appendix]
+const tocPage1Entries = [
+  // CHAPTER 1
+  { level: 0, label: 'CHAPTER 1: INTRODUCTION', key: 'chapter1' },
+  { level: 1, label: '1.1 Background', key: 'sec_1.1', fallback: 'chapter1' },
+  { level: 1, label: '1.2 Problem Statement', key: 'sec_1.2', fallback: 'chapter1' },
+  { level: 1, label: '1.3 Objectives', key: 'sec_1.3', fallback: 'chapter1' },
+  { level: 1, label: '1.4 Scope of the Project', key: 'sec_1.4', fallback: 'chapter1' },
+  { level: 1, label: '1.5 Organisation of the Report', key: 'sec_1.5', fallback: 'chapter1' },
+  // CHAPTER 2
+  { level: 0, label: 'CHAPTER 2: LITERATURE REVIEW / EXISTING SYSTEM', key: 'chapter2' },
+  { level: 1, label: '2.1 Review of Related Work', key: 'sec_2.1', fallback: 'chapter2' },
+  { level: 1, label: '2.2 Existing System', key: 'sec_2.2', fallback: 'chapter2' },
+  { level: 1, label: '2.3 Gaps Identified', key: 'sec_2.3', fallback: 'chapter2' },
+  { level: 1, label: '2.4 Proposed System', key: 'sec_2.4', fallback: 'chapter2' },
+  // CHAPTER 3
+  { level: 0, label: 'CHAPTER 3: SYSTEM ANALYSIS AND DESIGN', key: 'chapter3' },
+  { level: 1, label: '3.1 Requirement Analysis', key: 'sec_3.1', fallback: 'chapter3' },
+  { level: 2, label: '3.1.1 Functional Requirements', key: 'sec_3.1.1', fallback: 'sec_3.1' },
+  { level: 2, label: '3.1.2 Non-Functional Requirements', key: 'sec_3.1.2', fallback: 'sec_3.1' },
+  { level: 2, label: '3.1.3 Hardware and Software Requirements', key: 'sec_3.1.3', fallback: 'sec_3.1' },
+  { level: 1, label: '3.2 Feasibility Study', key: 'sec_3.2', fallback: 'chapter3' },
+  { level: 2, label: '3.2.1 Technical Feasibility', key: 'sec_3.2.1', fallback: 'sec_3.2' },
+  { level: 2, label: '3.2.2 Economic Feasibility', key: 'sec_3.2.2', fallback: 'sec_3.2' },
+  { level: 2, label: '3.2.3 Operational Feasibility', key: 'sec_3.2.3', fallback: 'sec_3.2' },
+  { level: 1, label: '3.3 System Architecture', key: 'sec_3.3', fallback: 'fig3_1' },
+  { level: 1, label: '3.4 Design Diagrams', key: 'sec_3.4', fallback: 'fig3_2' },
+  { level: 2, label: '3.4.1 Data Flow Diagram', key: 'sec_3.4.1', fallback: 'fig3_2' },
+  { level: 2, label: '3.4.2 ER / UML Diagrams', key: 'sec_3.4.2', fallback: 'fig3_4' },
+  { level: 1, label: '3.5 Technology Stack', key: 'sec_3.5', fallback: 'chapter3' },
+  // CHAPTER 4
+  { level: 0, label: 'CHAPTER 4: IMPLEMENTATION', key: 'chapter4' },
+  { level: 1, label: '4.1 Module Description', key: 'sec_4.1', fallback: 'chapter4' },
+  { level: 1, label: '4.2 Key Algorithms', key: 'sec_4.2', fallback: 'chapter4' },
+  { level: 1, label: '4.3 Code Snippets', key: 'sec_4.3', fallback: 'chapter4' },
+  { level: 1, label: '4.4 Screenshots', key: 'sec_4.4', fallback: 'fig4_1' },
+  // CHAPTER 5
+  { level: 0, label: 'CHAPTER 5: TESTING', key: 'chapter5' },
+  { level: 1, label: '5.1 Testing Strategy', key: 'sec_5.1', fallback: 'chapter5' },
+  { level: 1, label: '5.2 Test Cases and Test Results', key: 'sec_5.2', fallback: 'tab5_1' },
+  { level: 1, label: '5.3 Sample Input / Output', key: 'sec_5.3', fallback: 'chapter5' },
+  // CHAPTER 6 (first part)
+  { level: 0, label: 'CHAPTER 6: RESULTS AND DISCUSSION', key: 'chapter6' },
+  { level: 1, label: '6.1 Output Screenshots', key: 'sec_6.1', fallback: 'chapter6' },
+  { level: 1, label: '6.2 Performance / Accuracy Analysis', key: 'sec_6.2', fallback: 'tab6_1' }
 ];
 
-tocEntries.forEach(([label, pgIdx]) => {
-  const isMajor = label.startsWith('CHAPTER') || ['REFERENCES', 'APPENDIX'].includes(label);
-  const pgStr = getDisplayPage(pgIdx !== undefined ? pgIdx : 0);
-  doc.font(isMajor ? 'Times-Bold' : 'Times-Roman').fontSize(isMajor ? 8.6 : 8.0).fillColor('#000000');
-  
-  const textWidth = doc.widthOfString(label);
-  const numWidth = doc.widthOfString(pgStr);
-  const dotWidth = doc.widthOfString('. ');
-  const numDots = Math.max(2, Math.floor((USABLE_WIDTH - textWidth - numWidth - 10) / dotWidth));
-  const dots = '. '.repeat(numDots);
+const tocPage2Entries = [
+  { level: 1, label: '6.3 Discussion', key: 'sec_6.3', fallback: 'chapter6' },
+  // CHAPTER 7
+  { level: 0, label: 'CHAPTER 7: CONCLUSION AND FUTURE SCOPE', key: 'chapter7' },
+  { level: 1, label: '7.1 Conclusion', key: 'sec_7.1', fallback: 'chapter7' },
+  { level: 1, label: '7.2 Limitations', key: 'sec_7.2', fallback: 'chapter7' },
+  { level: 1, label: '7.3 Future Scope', key: 'sec_7.3', fallback: 'chapter7' },
+  // REFERENCES
+  { level: 0, label: 'REFERENCES', key: 'references' },
+  // APPENDIX
+  { level: 0, label: 'APPENDIX', key: 'appendix' },
+  { level: 1, label: 'Appendix A: Source Code', key: 'sec_app_a', fallback: 'appendix' },
+  { level: 1, label: 'Appendix B: Additional Material', key: 'sec_app_b', fallback: 'appendix' }
+];
 
-  doc.text(label, MARGIN_LEFT, doc.y, { continued: true });
-  doc.text(' ' + dots + ' ' + pgStr, { align: 'right', width: USABLE_WIDTH - (doc.x - MARGIN_LEFT) });
-  doc.moveDown(0.20);
-});
+function renderTocItems(entries, startY) {
+  let curY = startY;
+  entries.forEach((item, index) => {
+    const isLevel0 = item.level === 0;
+    const isLevel1 = item.level === 1;
+    const isLevel2 = item.level === 2;
+
+    // Small extra gap before level 0 chapters, except when at the very top of the page
+    if (isLevel0 && index > 0) {
+      curY += 7;
+    }
+
+    const fontName = isLevel0 ? 'Times-Bold' : 'Times-Roman';
+    const fontSize = isLevel0 ? 10 : 9.5;
+    const indent = isLevel0 ? 0 : (isLevel1 ? 16 : 32);
+    const startX = MARGIN_LEFT + indent;
+
+    const pgNum = getPageNum(item.key, item.fallback);
+
+    // Render title/label on left
+    doc.font(fontName).fontSize(fontSize).fillColor('#000000')
+       .text(item.label, startX, curY, { width: USABLE_WIDTH - indent - 40, lineBreak: false });
+
+    // Render page number on far right (pure whitespace, NO dots)
+    doc.font(fontName).fontSize(fontSize).fillColor('#000000')
+       .text(pgNum, MARGIN_LEFT, curY, { width: USABLE_WIDTH, align: 'right', lineBreak: false });
+
+    curY += 15;
+  });
+}
+
+// 1. Fill Table of Contents on pageTracker.toc1 and pageTracker.toc2
+doc.switchToPage(pageTracker.toc1);
+renderTocItems(tocPage1Entries, 115);
+
+doc.switchToPage(pageTracker.toc2);
+renderTocItems(tocPage2Entries, 72);
 
 // 2. Fill List of Figures on pageTracker.listOfFigures
 doc.switchToPage(pageTracker.listOfFigures);
