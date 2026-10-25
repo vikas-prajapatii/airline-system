@@ -732,45 +732,102 @@ pageTracker.fig3_1 = doc.bufferedPageRange().count - 1;
 const archY = doc.y;
 const diagramW = USABLE_WIDTH;
 
-doc.roundedRect(MARGIN_LEFT, archY, diagramW, 230, 6).fillAndStroke('#f8fafc', '#94a3b8');
+// Outer diagram container
+doc.roundedRect(MARGIN_LEFT, archY, diagramW, 226, 6).fillAndStroke('#f8fafc', '#94a3b8');
 
-drawBox(MARGIN_LEFT + diagramW / 2 - 100, archY + 10, 200, 26, 'Client Layer / Web & Mobile / Postman', 'RESTful HTTP Requests (JSON Payloads)', '#e0f2fe', '#0284c7');
-doc.moveTo(MARGIN_LEFT + diagramW / 2, archY + 36).lineTo(MARGIN_LEFT + diagramW / 2, archY + 48).strokeColor('#0284c7').lineWidth(1.5).stroke();
+// Client Layer Box (top)
+const clientW = 220;
+const clientX = MARGIN_LEFT + (diagramW - clientW) / 2;
+doc.roundedRect(clientX, archY + 8, clientW, 26, 4).fillAndStroke('#e0f2fe', '#0284c7');
+doc.font('Times-Bold').fontSize(8.5).fillColor('#0f172a')
+   .text('Client Layer / Web & Mobile / Postman', clientX, archY + 12, { width: clientW, align: 'center' });
+doc.font('Times-Roman').fontSize(7.2).fillColor('#475569')
+   .text('RESTful HTTP Requests (JSON Payloads)', clientX, archY + 23, { width: clientW, align: 'center' });
 
-const subColW = (diagramW - 30) / 3;
+// Connector line down from Client Layer
+doc.moveTo(MARGIN_LEFT + diagramW / 2, archY + 34).lineTo(MARGIN_LEFT + diagramW / 2, archY + 44).strokeColor('#0284c7').lineWidth(1.2).stroke();
 
-// Domain 1: Core Services
-const d1X = MARGIN_LEFT + 8;
-const d1Y = archY + 50;
-doc.roundedRect(d1X, d1Y, subColW, 95, 4).fillAndStroke('#ffffff', '#cbd5e1');
-doc.font('Times-Bold').fontSize(8).fillColor('#475569').text('CORE INFRASTRUCTURE', d1X, d1Y + 4, { width: subColW, align: 'center' });
-drawBox(d1X + 4, d1Y + 16, subColW - 8, 22, 'User Service (:5001)', 'JWT & Authentication (airline_user_db)', '#f1f5f9', '#64748b');
-drawBox(d1X + 4, d1Y + 41, subColW - 8, 22, 'Airline Service (:5002)', 'Fleets & Governance (airline_db)', '#f1f5f9', '#64748b');
-drawBox(d1X + 4, d1Y + 66, subColW - 8, 22, 'Location Service (:5004)', 'Airports Cache (airline_location_db)', '#f1f5f9', '#64748b');
+// 3 Columns Calculation
+const padOuter = 6;
+const gapCols = 6;
+const subColW = (diagramW - padOuter * 2 - gapCols * 2) / 3; // 130.4 pt
+const col1X = MARGIN_LEFT + padOuter;
+const col2X = col1X + subColW + gapCols;
+const col3X = col2X + subColW + gapCols;
+const dY = archY + 47;
 
-// Domain 2: Operations & Inventory
-const d2X = d1X + subColW + 7;
-doc.roundedRect(d2X, d1Y, subColW, 95, 4).fillAndStroke('#ffffff', '#cbd5e1');
-doc.font('Times-Bold').fontSize(8).fillColor('#475569').text('OPERATIONS & INVENTORY', d2X, d1Y + 4, { width: subColW, align: 'center' });
-drawBox(d2X + 4, d1Y + 16, subColW - 8, 22, 'Flight Ops (:5003)', 'Flights & Instances (airline_flight_db)', '#f1f5f9', '#64748b');
-drawBox(d2X + 4, d1Y + 41, subColW - 8, 22, 'Pricing Service (:5005)', 'Fares & Baggage (airline_pricing_db)', '#f1f5f9', '#64748b');
-drawBox(d2X + 4, d1Y + 66, subColW - 8, 22, 'Seat Service (:5006)', 'Seat Maps & Layouts (airline_seat_db)', '#f1f5f9', '#64748b');
+// Horizontal bus connector
+doc.moveTo(col1X + subColW / 2, archY + 44).lineTo(col3X + subColW / 2, archY + 44).strokeColor('#0284c7').lineWidth(1).stroke();
+[col1X, col2X, col3X].forEach(cx => {
+  doc.moveTo(cx + subColW / 2, archY + 44).lineTo(cx + subColW / 2, dY).strokeColor('#0284c7').lineWidth(1).stroke();
+});
 
-// Domain 3: Commerce & Transactions
-const d3X = d2X + subColW + 7;
-doc.roundedRect(d3X, d1Y, subColW, 95, 4).fillAndStroke('#ffffff', '#cbd5e1');
-doc.font('Times-Bold').fontSize(8).fillColor('#475569').text('COMMERCE & SETTLEMENT', d3X, d1Y + 4, { width: subColW, align: 'center' });
-drawBox(d3X + 4, d1Y + 16, subColW - 8, 22, 'Ancillary Service (:5007)', 'Meals & Insurance (airline_ancillary_db)', '#f1f5f9', '#64748b');
-drawBox(d3X + 4, d1Y + 41, subColW - 8, 22, 'Booking Service (:5008)', 'PNR & Tickets (airline_booking_db)', '#f1f5f9', '#64748b');
-drawBox(d3X + 4, d1Y + 66, subColW - 8, 22, 'Payment Service (:5009)', 'Razorpay & Verify (airline_payment_db)', '#f1f5f9', '#64748b');
+function drawMicroBox(x, y, w, h, title, desc, db) {
+  doc.roundedRect(x, y, w, h, 3).fillAndStroke('#ffffff', '#64748b');
+  doc.font('Times-Bold').fontSize(7.8).fillColor('#0f172a').text(title, x, y + 2.5, { width: w, align: 'center' });
+  doc.font('Times-Roman').fontSize(6.6).fillColor('#334155').text(desc, x, y + 11.5, { width: w, align: 'center' });
+  doc.font('Times-Italic').fontSize(6.0).fillColor('#0284c7').text('(' + db + ')', x, y + 19.5, { width: w, align: 'center' });
+}
 
-// Kafka Central Message Broker Box
-drawBox(MARGIN_LEFT + 20, archY + 155, diagramW - 40, 32, 'Apache Kafka Event Streaming Broker (:9092)', 'Topics: FlightInstanceCreatedEvent | BookingConfirmedEvent | PaymentCompletedEvent | PaymentFailedEvent', '#fef3c7', '#d97706');
+const domains = [
+  {
+    x: col1X,
+    header: 'CORE INFRASTRUCTURE',
+    services: [
+      { title: 'User Service (:5001)', desc: 'JWT & Authentication', db: 'airline_user_db' },
+      { title: 'Airline Service (:5002)', desc: 'Fleets & Governance', db: 'airline_db' },
+      { title: 'Location Service (:5004)', desc: 'Airports Cache', db: 'airline_location_db' }
+    ]
+  },
+  {
+    x: col2X,
+    header: 'OPERATIONS & INVENTORY',
+    services: [
+      { title: 'Flight Ops (:5003)', desc: 'Flights & Schedules', db: 'airline_flight_db' },
+      { title: 'Pricing Service (:5005)', desc: 'Fares & Baggage Rules', db: 'airline_pricing_db' },
+      { title: 'Seat Service (:5006)', desc: 'Seat Maps & Layouts', db: 'airline_seat_db' }
+    ]
+  },
+  {
+    x: col3X,
+    header: 'COMMERCE & SETTLEMENT',
+    services: [
+      { title: 'Ancillary Service (:5007)', desc: 'Meals & Travel Insurance', db: 'airline_ancillary_db' },
+      { title: 'Booking Service (:5008)', desc: 'PNR & Ticket Issuance', db: 'airline_booking_db' },
+      { title: 'Payment Service (:5009)', desc: 'Razorpay Gateway & Verify', db: 'airline_payment_db' }
+    ]
+  }
+];
 
-doc.font('Times-Roman').fontSize(7.5).fillColor('#0369a1')
-   .text('Synchronous REST (Spring Cloud OpenFeign) & Asynchronous Kafka Event Choreography', MARGIN_LEFT, archY + 198, { width: diagramW, align: 'center' });
+domains.forEach(d => {
+  doc.roundedRect(d.x, dY, subColW, 110, 4).fillAndStroke('#f1f5f9', '#cbd5e1');
+  doc.font('Times-Bold').fontSize(7.2).fillColor('#475569').text(d.header, d.x, dY + 4, { width: subColW, align: 'center' });
+  d.services.forEach((s, idx) => {
+    drawMicroBox(d.x + 4, dY + 16 + idx * 31, subColW - 8, 28, s.title, s.desc, s.db);
+  });
+});
 
-doc.y = archY + 238;
+// Drop lines to Kafka
+doc.save();
+doc.dash(2, { space: 2 });
+[col1X, col2X, col3X].forEach(cx => {
+  doc.moveTo(cx + subColW / 2, dY + 110).lineTo(cx + subColW / 2, archY + 168).strokeColor('#d97706').lineWidth(1).stroke();
+});
+doc.restore();
+
+// Kafka Box
+const kafkaW = diagramW - 20;
+const kafkaX = MARGIN_LEFT + 10;
+const kafkaY = archY + 168;
+doc.roundedRect(kafkaX, kafkaY, kafkaW, 30, 4).fillAndStroke('#fef3c7', '#d97706');
+doc.font('Times-Bold').fontSize(8.2).fillColor('#0f172a').text('Apache Kafka Event Streaming Broker (:9092)', kafkaX, kafkaY + 3.5, { width: kafkaW, align: 'center' });
+doc.font('Times-Roman').fontSize(6.8).fillColor('#475569').text('Topics: FlightInstanceCreatedEvent  |  BookingConfirmedEvent  |  PaymentCompletedEvent  |  PaymentFailedEvent', kafkaX, kafkaY + 16, { width: kafkaW, align: 'center' });
+
+// Bottom Note
+doc.font('Times-Italic').fontSize(7.5).fillColor('#0369a1')
+   .text('Synchronous REST (Spring Cloud OpenFeign) & Asynchronous Kafka Event Choreography', MARGIN_LEFT, archY + 208, { width: diagramW, align: 'center' });
+
+doc.y = archY + 234;
 doc.font('Times-Bold').fontSize(10).fillColor('#000000')
    .text('Figure 3.1: High-Level Microservices Architecture & Communication Topology', MARGIN_LEFT, doc.y, { width: USABLE_WIDTH, align: 'center' });
 doc.moveDown(1);
