@@ -294,72 +294,89 @@ function drawCodeBlock(title, lines) {
 console.log('Generating complete academic PDF report including Chapters 1 through 7, References, and Appendices...');
 
 // ==========================================
-// 1. COVER PAGE
+// 1. COVER PAGE (Official Template Style)
 // ==========================================
 doc.addPage();
 pageTracker.cover = 0;
-doc.moveDown(0.4);
-doc.font('Times-Bold').fontSize(16).fillColor('#000000')
-   .text('BACKEND OF FLIGHT BOOKING SYSTEM', MARGIN_LEFT, doc.y, { width: USABLE_WIDTH, align: 'center' });
-doc.moveDown(0.3);
-doc.font('Times-Bold').fontSize(14)
-   .text('MINI PROJECT REPORT', { width: USABLE_WIDTH, align: 'center' });
-doc.moveDown(0.2);
-doc.font('Times-Italic').fontSize(10.5)
-   .text('Submitted in partial fulfilment of the requirement for the award of the degree of', { width: USABLE_WIDTH, align: 'center' });
-doc.moveDown(0.2);
-doc.font('Times-Bold').fontSize(12.5)
-   .text('Bachelor of Technology', { width: USABLE_WIDTH, align: 'center' });
-doc.font('Times-Roman').fontSize(10.5).text('in', { width: USABLE_WIDTH, align: 'center' });
-doc.font('Times-Bold').fontSize(12)
-   .text('Computer Science & Engineering', { width: USABLE_WIDTH, align: 'center' });
 
+doc.y = 52;
+doc.font('Times-Bold').fontSize(16).fillColor('#1e293b')
+   .text('BACKEND OF FLIGHT BOOKING SYSTEM', MARGIN_LEFT, doc.y, { width: USABLE_WIDTH, align: 'center' });
+
+// Upper golden divider line
+doc.moveTo(MARGIN_LEFT, doc.y + 10).lineTo(PAGE_WIDTH - MARGIN_RIGHT, doc.y + 10).strokeColor('#c8963e').lineWidth(1.5).stroke();
+doc.y += 24;
+
+doc.font('Times-Bold').fontSize(18).fillColor('#1a365d')
+   .text('MINI PROJECT REPORT', { width: USABLE_WIDTH, align: 'center' });
+doc.moveDown(0.5);
+
+doc.font('Times-Italic').fontSize(10.5).fillColor('#334155')
+   .text('Submitted in partial fulfilment of the requirement for the award of the degree of', { width: USABLE_WIDTH, align: 'center' });
 doc.moveDown(0.3);
-doc.font('Times-Roman').fontSize(10.5).text('Submitted to', { width: USABLE_WIDTH, align: 'center' });
-doc.font('Times-Bold').fontSize(10.5)
+
+doc.font('Times-Bold').fontSize(13).fillColor('#0f172a')
+   .text('Bachelor of Technology', { width: USABLE_WIDTH, align: 'center' });
+doc.font('Times-Italic').fontSize(10.5).fillColor('#334155')
+   .text('in', { width: USABLE_WIDTH, align: 'center' });
+doc.font('Times-Bold').fontSize(12.5).fillColor('#8b1e2d')
+   .text('Computer Science & Engineering', { width: USABLE_WIDTH, align: 'center' });
+doc.moveDown(0.4);
+
+doc.font('Times-Italic').fontSize(10.5).fillColor('#334155')
+   .text('Submitted to', { width: USABLE_WIDTH, align: 'center' });
+doc.font('Times-Bold').fontSize(10.5).fillColor('#0f172a')
    .text('DR. A.P.J. ABDUL KALAM TECHNICAL UNIVERSITY, UTTAR PRADESH, LUCKNOW', { width: USABLE_WIDTH, align: 'center' });
 
 // AKTU Logo
 if (fs.existsSync(AKTU_LOGO)) {
-  doc.image(AKTU_LOGO, PAGE_WIDTH / 2 - 38, doc.y + 4, { width: 76 });
-  doc.y += 88;
+  doc.image(AKTU_LOGO, PAGE_WIDTH / 2 - 38, doc.y + 8, { width: 76 });
+  doc.y += 92;
 } else {
   doc.moveDown(2.5);
 }
 
-// Two Column Metadata
+// Two-Column Metadata
 const colY = doc.y;
 const halfColWidth = USABLE_WIDTH / 2;
 
-// Left column: Submitted by (Vikas, 2301530100149, Semester & Section: 7/A)
-doc.font('Times-Bold').fontSize(10.5).text('Submitted by', MARGIN_LEFT, colY);
-doc.font('Times-Roman').fontSize(10)
+// Left column: Submitted by
+doc.font('Times-Bold').fontSize(11).fillColor('#1a365d').text('Submitted by', MARGIN_LEFT, colY);
+doc.font('Times-Roman').fontSize(10).fillColor('#0f172a')
    .text('Stud Name: Vikas', MARGIN_LEFT, colY + 16)
    .text('Roll No: 2301530100149', MARGIN_LEFT, colY + 30)
    .text('Semester & Section: 7/A', MARGIN_LEFT, colY + 44);
 
-// Right column: Under the Supervision of (Ms. Deepika Arora, Assistant Professor)
-doc.font('Times-Bold').fontSize(10.5).text('Under the Supervision of', MARGIN_LEFT + halfColWidth + 10, colY);
-doc.font('Times-Roman').fontSize(10)
+// Right column: Under the Supervision of
+doc.font('Times-Bold').fontSize(11).fillColor('#1a365d').text('Under the Supervision of', MARGIN_LEFT + halfColWidth + 10, colY);
+doc.font('Times-Roman').fontSize(10).fillColor('#0f172a')
    .text('Guide Name: Ms. Deepika Arora', MARGIN_LEFT + halfColWidth + 10, colY + 16)
-   .text('Designation: Assistant Professor', MARGIN_LEFT + halfColWidth + 10, colY + 30)
-   .text('Dept. of Computer Science & Engg.', MARGIN_LEFT + halfColWidth + 10, colY + 44);
+   .text('Designation: Assistant Professor', MARGIN_LEFT + halfColWidth + 10, colY + 30);
 
-doc.y = colY + 62;
+doc.y = colY + 68;
 
 // Lloyd Logo
 if (fs.existsSync(LLOYD_LOGO)) {
   doc.image(LLOYD_LOGO, PAGE_WIDTH / 2 - 40, doc.y, { width: 80 });
-  doc.y += 90;
+  doc.y += 92;
 } else {
   doc.moveDown(2.5);
 }
 
-doc.font('Times-Bold').fontSize(10.5).text('Department of Computer Science & Engineering & Allied Branches', MARGIN_LEFT, doc.y, { width: USABLE_WIDTH, align: 'center' });
-doc.font('Times-Bold').fontSize(12.5).text('Lloyd Institute of Engineering & Technology', { width: USABLE_WIDTH, align: 'center' });
-doc.font('Times-Roman').fontSize(9.5).text('Plot No. 3, Knowledge Park II, Greater Noida, Uttar Pradesh 201306', { width: USABLE_WIDTH, align: 'center' });
-doc.moveDown(0.2);
-doc.font('Times-Bold').fontSize(10.5).text('Session: 2026–27', { width: USABLE_WIDTH, align: 'center' });
+// Lower golden divider line
+doc.moveTo(MARGIN_LEFT, doc.y).lineTo(PAGE_WIDTH - MARGIN_RIGHT, doc.y).strokeColor('#c8963e').lineWidth(1.5).stroke();
+doc.y += 14;
+
+// Institute Footer
+doc.font('Times-Bold').fontSize(10.5).fillColor('#0f172a')
+   .text('Department of Computer Science & Engineering & Allied Branches', MARGIN_LEFT, doc.y, { width: USABLE_WIDTH, align: 'center' });
+doc.font('Times-Bold').fontSize(13).fillColor('#8b1e2d')
+   .text('Lloyd Institute of Engineering & Technology', { width: USABLE_WIDTH, align: 'center' });
+doc.font('Times-Roman').fontSize(9.5).fillColor('#334155')
+   .text('Plot No. 3, Knowledge Park II, Greater Noida, Uttar Pradesh 201306', { width: USABLE_WIDTH, align: 'center' });
+doc.moveDown(0.4);
+doc.font('Times-Bold').fontSize(11).fillColor('#1a365d')
+   .text('Session: 2026–27', { width: USABLE_WIDTH, align: 'center' });
 
 
 // ==========================================
