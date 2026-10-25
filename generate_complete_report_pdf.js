@@ -365,33 +365,48 @@ doc.font('Times-Bold').fontSize(10.5).text('Session: 2026–27', { width: USABLE
 // ==========================================
 // 2. CERTIFICATE
 // ==========================================
-newPage('Certificate');
+newPage();
 pageTracker.certificate = doc.bufferedPageRange().count - 1;
-doc.moveDown(1);
-doc.font('Times-Bold').fontSize(15).text('CERTIFICATE', { width: USABLE_WIDTH, align: 'center' });
+doc.moveDown(1.2);
+doc.font('Times-Bold').fontSize(16).text('CERTIFICATE', { width: USABLE_WIDTH, align: 'center' });
 doc.moveDown(1.5);
 
 bodyText('This is to certify that the Mini Project Report entitled "Backend of flight booking system" is a bonafide work carried out by Vikas (Roll No. 2301530100149) in partial fulfilment of the requirements for the award of the degree of Bachelor of Technology in Computer Science & Engineering during the academic year 2026–2027, 7th Semester (Section 7/A), at the Department of Computer Science & Engineering, Lloyd Institute of Engineering & Technology.');
-doc.moveDown(0.5);
-bodyText('The project work has been conducted under our direct supervision and guidance. The results and conclusions embodied in this report have not been submitted to any other University or Institute for the award of any other degree or diploma.');
+doc.moveDown(0.6);
+bodyText('The work embodied in this report has not been submitted elsewhere for the award of any other degree or diploma. To the best of our knowledge, the report fulfils the prescribed structure and formatting requirements of the Mini Project guidelines.');
 
-doc.y = 520;
-const signColWidth = USABLE_WIDTH / 2;
+// 3 Signature Columns at the same level
+const certSignY = 490;
+const colW = 125;
+const colGap = (USABLE_WIDTH - 3 * colW) / 2; // 20.14 pt
+const c1X = MARGIN_LEFT;
+const c2X = c1X + colW + colGap;
+const c3X = c2X + colW + colGap;
+const lineW = 110;
 
-// Row 1: Guide & Project Coordinator
-doc.font('Times-Bold').fontSize(10.5).text('Ms. Deepika Arora', MARGIN_LEFT, doc.y);
-doc.font('Times-Roman').fontSize(9.5).text('Guide / Assistant Professor\nDept. of Computer Science & Engg.', MARGIN_LEFT, doc.y + 14);
+// Column 1: Project Guide
+doc.moveTo(c1X + (colW - lineW) / 2, certSignY).lineTo(c1X + (colW + lineW) / 2, certSignY).strokeColor('#000000').lineWidth(0.75).stroke();
+doc.font('Times-Bold').fontSize(10.5).fillColor('#000000').text('Project Guide', c1X, certSignY + 6, { width: colW, align: 'center' });
+doc.font('Times-Roman').fontSize(10).text('Ms. Deepika Arora', c1X, certSignY + 20, { width: colW, align: 'center' });
+doc.font('Times-Roman').fontSize(9.5).text('Assistant Professor', c1X, certSignY + 34, { width: colW, align: 'center' });
 
-doc.font('Times-Bold').fontSize(10.5).text('Mr. Vishal Gupta', MARGIN_LEFT + signColWidth + 20, doc.y);
-doc.font('Times-Roman').fontSize(9.5).text('Project Coordinator / Assistant Professor\nDept. of Computer Science & Engg.', MARGIN_LEFT + signColWidth + 20, doc.y + 14);
+// Column 2: Project Coordinator
+doc.moveTo(c2X + (colW - lineW) / 2, certSignY).lineTo(c2X + (colW + lineW) / 2, certSignY).strokeColor('#000000').lineWidth(0.75).stroke();
+doc.font('Times-Bold').fontSize(10.5).fillColor('#000000').text('Project Coordinator', c2X, certSignY + 6, { width: colW, align: 'center' });
+doc.font('Times-Roman').fontSize(10).text('Mr. Vishal Gupta', c2X, certSignY + 20, { width: colW, align: 'center' });
+doc.font('Times-Roman').fontSize(9.5).text('Assistant Professor', c2X, certSignY + 34, { width: colW, align: 'center' });
 
-// Row 2: HOD & Dean
-doc.y = 660;
-doc.font('Times-Bold').fontSize(10.5).text('Ms. Deepika Arora', MARGIN_LEFT, doc.y);
-doc.font('Times-Roman').fontSize(9.5).text('Head of Department (HOD)\nDept. of Computer Science & Engg.', MARGIN_LEFT, doc.y + 14);
+// Column 3: Head of Department
+doc.moveTo(c3X + (colW - lineW) / 2, certSignY).lineTo(c3X + (colW + lineW) / 2, certSignY).strokeColor('#000000').lineWidth(0.75).stroke();
+doc.font('Times-Bold').fontSize(10.5).fillColor('#000000').text('Head of Department', c3X, certSignY + 6, { width: colW, align: 'center' });
+doc.font('Times-Roman').fontSize(10).text('Ms. Deepika Arora', c3X, certSignY + 20, { width: colW, align: 'center' });
+doc.font('Times-Roman').fontSize(9.5).text('Dept. of CSE', c3X, certSignY + 34, { width: colW, align: 'center' });
 
-doc.font('Times-Bold').fontSize(10.5).text('Prof. Kumud Saxena', MARGIN_LEFT + signColWidth + 20, doc.y);
-doc.font('Times-Roman').fontSize(9.5).text('Dean (Academics / Engineering)\nLloyd Institute of Engg. & Technology', MARGIN_LEFT + signColWidth + 20, doc.y + 14);
+// Date & Place at bottom left
+const datePlaceY = 630;
+doc.font('Times-Bold').fontSize(10.5).fillColor('#000000').text('Date: ', MARGIN_LEFT, datePlaceY);
+doc.font('Times-Bold').fontSize(10.5).fillColor('#000000').text('Place: ', MARGIN_LEFT, datePlaceY + 18, { continued: true });
+doc.font('Times-Roman').fontSize(10.5).text('Greater Noida');
 
 
 // ==========================================
@@ -407,6 +422,7 @@ bodyText('I hereby declare that the work presented in this Mini Project Report e
 doc.moveDown(0.5);
 bodyText('I further declare that the content of this project report has not been submitted previously in part or in full for the award of any other degree or diploma to any other institute or university.');
 
+const signColWidth = USABLE_WIDTH / 2;
 doc.y = 560;
 doc.font('Times-Roman').fontSize(10.5)
    .text('Date: 25-10-2026', MARGIN_LEFT, doc.y)
