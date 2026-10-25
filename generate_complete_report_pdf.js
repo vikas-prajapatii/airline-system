@@ -68,24 +68,14 @@ const pageTracker = {
   tab6_1: 0
 };
 
-let currentRunningTitle = '';
-
-function newPage(runningTitle) {
+function newPage() {
   doc.addPage();
-  if (runningTitle) {
-    currentRunningTitle = runningTitle;
-    doc.font('Times-Italic').fontSize(8.5).fillColor('#666666')
-       .text(runningTitle, MARGIN_LEFT, 45, { width: USABLE_WIDTH, align: 'right' });
-    doc.moveTo(MARGIN_LEFT, 56).lineTo(PAGE_WIDTH - MARGIN_RIGHT, 56).strokeColor('#cccccc').lineWidth(0.5).stroke();
-    doc.y = MARGIN_TOP;
-  } else {
-    doc.y = MARGIN_TOP;
-  }
+  doc.y = MARGIN_TOP;
 }
 
 function checkPageSpace(requiredHeight) {
   if (doc.y + requiredHeight > PAGE_HEIGHT - MARGIN_BOTTOM - 20) {
-    newPage(currentRunningTitle);
+    newPage();
   }
 }
 
@@ -211,7 +201,7 @@ function drawTable(headers, rows, colWidths, tableTitle) {
 
     if (curY + rowHeight > PAGE_HEIGHT - MARGIN_BOTTOM - 20) {
       doc.y = curY;
-      newPage(currentRunningTitle);
+      newPage();
       curY = doc.y;
       // Re-draw header on next page
       doc.rect(startX, curY, USABLE_WIDTH, headerHeight).fillAndStroke('#e2e8f0', '#64748b');
@@ -284,7 +274,7 @@ function drawCodeBlock(title, lines) {
   });
 
   if (doc.y + totalH > PAGE_HEIGHT - MARGIN_BOTTOM - 20) {
-    newPage(currentRunningTitle);
+    newPage();
   }
 
   const startY = doc.y;
