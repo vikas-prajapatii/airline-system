@@ -422,18 +422,19 @@ bodyText('I hereby declare that the Mini Project Report entitled "Backend of fli
 doc.moveDown(0.6);
 bodyText('I further declare that this report has not been copied from any other source, and that all references, data and material taken from other sources have been duly acknowledged. The similarity index of this report, as checked using Turnitin, is 8% (excluding references, code and standard boilerplate text), which is below the permitted limit of 20%.');
 
-doc.y = 520;
+// Shift signature block upward
+doc.y = 410;
 doc.font('Times-Bold').fontSize(11).fillColor('#000000').text('Signature: ', MARGIN_LEFT, doc.y, { continued: true });
 doc.font('Times-Roman').text('______________________');
-doc.moveDown(1.0);
+doc.moveDown(0.9);
 
 doc.font('Times-Bold').fontSize(11).text('Name: ', MARGIN_LEFT, doc.y, { continued: true });
 doc.font('Times-Roman').text('Vikas');
-doc.moveDown(1.0);
+doc.moveDown(0.9);
 
 doc.font('Times-Bold').fontSize(11).text('Roll No.: ', MARGIN_LEFT, doc.y, { continued: true });
 doc.font('Times-Roman').text('2301530100149');
-doc.moveDown(1.0);
+doc.moveDown(0.9);
 
 doc.font('Times-Bold').fontSize(11).text('Date: ', MARGIN_LEFT, doc.y);
 
@@ -443,8 +444,8 @@ doc.font('Times-Bold').fontSize(11).text('Date: ', MARGIN_LEFT, doc.y);
 // ==========================================
 newPage();
 pageTracker.acknowledgement = doc.bufferedPageRange().count - 1;
-doc.moveDown(1);
-doc.font('Times-Bold').fontSize(15).text('ACKNOWLEDGEMENT', { width: USABLE_WIDTH, align: 'center' });
+doc.moveDown(1.2);
+doc.font('Times-Bold').fontSize(16).text('ACKNOWLEDGEMENT', { width: USABLE_WIDTH, align: 'center' });
 doc.moveDown(1.5);
 
 bodyText('I would like to express my profound gratitude and deep reverence to my project guide, Ms. Deepika Arora, Assistant Professor, Department of Computer Science & Engineering, for her invaluable guidance, constructive criticism, constant encouragement, and intellectual support throughout the progression of this project work.');
@@ -454,14 +455,6 @@ doc.moveDown(0.4);
 bodyText('I am equally obliged to Ms. Deepika Arora, Head of the Department, Computer Science & Engineering, and Prof. Kumud Saxena, Dean, Lloyd Institute of Engineering & Technology, for granting access to high-performance computing labs, enterprise software repositories, and scholastic encouragement.');
 doc.moveDown(0.4);
 bodyText('Lastly, I express sincere gratitude to my family, faculty members, and fellow classmates for their unwavering encouragement, insightful discussions, and technical camaraderie.');
-
-const signColWidth = USABLE_WIDTH / 2;
-doc.y = 580;
-doc.font('Times-Bold').fontSize(10.5).text('Vikas', MARGIN_LEFT + signColWidth + 40, doc.y);
-doc.font('Times-Roman').fontSize(10)
-   .text('Roll No.: 2301530100149', MARGIN_LEFT + signColWidth + 40, doc.y + 16)
-   .text('Semester & Section: 7/A', MARGIN_LEFT + signColWidth + 40, doc.y + 32)
-   .text('B.Tech - Computer Science & Engineering', MARGIN_LEFT + signColWidth + 40, doc.y + 48);
 
 
 // ==========================================
